@@ -4,50 +4,51 @@ import matter from 'gray-matter';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
-// 1. 获取所有文章列表（用于首页）
+// === 1. 定义默认封面图 (Endfield 风格) ===
+const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED"; 
+
 export function getSortedPostsData() {
-  // 如果文件夹不存在，创建一个空的
   if (!fs.existsSync(postsDirectory)) {
     fs.mkdirSync(postsDirectory);
   }
 
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames.map((fileName) => {
-    // 移除 ".md" 后缀作为 ID (slug)
     const id = fileName.replace(/\.md$/, '');
-
-    // 读取 markdown 文件内容
     const fullPath = path.join(postsDirectory, fileName);
     const fileContents = fs.readFileSync(fullPath, 'utf8');
-
-    // 使用 gray-matter 解析元数据 (front matter)
     const matterResult = matter(fileContents);
+    
+    // === 2. 获取原始 image ===
+    const rawImage = (matterResult.data as any).image;
 
     return {
       id,
-      ...(matterResult.data as { date: string; title: string; category: string; image: string }),
+      ...(matterResult.data as { date: string; title: string; category: string }),
+      // === 3. 判断：如果有值且不为空字符串，就用原图，否则用默认图 ===
+      image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
     };
   });
 
-  // 按日期排序
   return allPostsData.sort((a, b) => {
-    if (a.date < b.date) {
-      return 1;
-    } else {
-      return -1;
-    }
+    if (a.date < b.date) return 1;
+    else return -1;
   });
 }
 
-// 2. 获取单篇文章内容（用于详情页）
 export function getPostData(id: string) {
   const fullPath = path.join(postsDirectory, `${id}.md`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const matterResult = matter(fileContents);
+  
+  // === 2. 获取原始 image ===
+  const rawImage = (matterResult.data as any).image;
 
   return {
     id,
-    content: matterResult.content, // 文章正文
-    ...(matterResult.data as { date: string; title: string; category: string; image: string }),
+    content: matterResult.content,
+    ...(matterResult.data as { date: string; title: string; category: string }),
+    // === 3. 同样的判断逻辑 ===
+    image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
   };
 }

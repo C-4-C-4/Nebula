@@ -8,8 +8,11 @@ const octokit = new Octokit({
 
 const OWNER = process.env.GITHUB_OWNER!;
 const REPO = process.env.GITHUB_REPO!;
-const BRANCH = process.env.GITHUB_BRANCH || "master";
+const BRANCH = process.env.GITHUB_BRANCH || "main";
 const POSTS_PATH = "posts"; // 你的文章存放目录
+
+// === 定义默认封面图 (终末地风格) ===
+const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED";
 
 // 1. 获取所有文件列表 (用于后台列表)
 export async function fetchGithubFiles() {
@@ -29,7 +32,7 @@ export async function fetchGithubFiles() {
       .map((file) => ({
         name: file.name,
         slug: file.name.replace(".md", ""),
-        sha: file.sha, // 更新文件时需要用到 SHA
+        sha: file.sha, // 更新/删除文件时需要用到 SHA
       }));
   } catch (error) {
     console.error("Error fetching files:", error);
@@ -51,6 +54,12 @@ export async function fetchGithubFileContent(slug: string) {
     if ("content" in data) {
       const content = Buffer.from(data.content, "base64").toString("utf-8");
       const { data: frontMatter, content: markdownBody } = matter(content);
+
+      // === 关键修改：如果没有封面图，注入默认图 ===
+      if (!frontMatter.image || frontMatter.image.trim() === "") {
+        frontMatter.image = DEFAULT_COVER;
+      }
+
       return {
         slug,
         sha: data.sha,
@@ -60,6 +69,7 @@ export async function fetchGithubFileContent(slug: string) {
     }
     return null;
   } catch (error) {
+    console.error(`Error fetching file ${slug}:`, error);
     return null;
   }
 }
