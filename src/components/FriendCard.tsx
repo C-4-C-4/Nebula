@@ -1,6 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 interface Friend {
   id: string;
@@ -13,30 +13,59 @@ interface Friend {
   stack?: string[];
 }
 
-// 辅助函数：将技术名称转换为 Simple Icons 的 Slug 格式
-// 例如: "Next.js" -> "nextdotjs", "C#" -> "csharp"
+// 图标辅助函数 (保持不变)
 const getIconSlug = (name: string) => {
-  const lowerName = name.toLowerCase();
-  // 特殊映射表 (处理特殊符号)
+  const lowerName = name.toLowerCase().trim();
   const map: Record<string, string> = {
     "next.js": "nextdotjs",
+    "nextjs": "nextdotjs",
+    "vue": "vuedotjs",
     "vue.js": "vuedotjs",
+    "nuxt": "nuxtdotjs",
+    "nuxt.js": "nuxtdotjs",
+    "react": "react",
     "three.js": "threedotjs",
-    "nuat.js": "nuxtdotjs",
+    "threejs": "threedotjs",
+    "tailwind": "tailwindcss",
+    "tailwindcss": "tailwindcss",
     "c#": "csharp",
     "c++": "cplusplus",
-    ".net": "dotnet"
+    ".net": "dotnet",
+    "webgl": "webgl",
+    "gsap": "greensock"
   };
   
   if (map[lowerName]) return map[lowerName];
-  
-  // 默认规则：替换 . 为 dot，然后移除其他非字母数字字符
   return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
+};
+
+// 技术标签子组件 (保持不变)
+const TechTag = ({ tech }: { tech: string }) => {
+  const [isError, setIsError] = useState(false);
+  const iconSlug = getIconSlug(tech);
+  const iconUrl = `https://cdn.simpleicons.org/${iconSlug}/9ca3af`;
+
+  return (
+    <div className="flex items-center gap-1.5 border border-white/10 px-2 py-1 bg-white/5 hover:bg-white/10 hover:border-endfield-accent/50 transition-colors group/tag h-6">
+      {!isError && (
+        <img 
+          src={iconUrl} 
+          alt="" 
+          className="w-3 h-3 opacity-70 group-hover/tag:opacity-100 transition-opacity"
+          onError={() => setIsError(true)} 
+        />
+      )}
+      <span className="text-[9px] font-mono text-endfield-dim uppercase tracking-wider group-hover/tag:text-white transition-colors leading-none">
+        {tech}
+      </span>
+    </div>
+  );
 };
 
 export default function FriendCard({ data, index }: { data: Friend; index: number }) {
   const FALLBACK_IMAGE = "https://placehold.co/600x340/09090b/333/png?text=NO_SIGNAL";
 
+  // 1. URL 生成逻辑 (保持不变，已包含日期v参数)
   const snapshotUrl = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const params = new URLSearchParams({
@@ -47,13 +76,31 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       viewport: "1280x800",
       nrg: "1",
       ttl: "86400000",
-      v: today
+      v: today // 每天变一次，保证每天只请求一次新图
     });
     return `https://api.microlink.io/?${params.toString()}`;
   }, [data.url]);
 
   const [imgSrc, setImgSrc] = useState(snapshotUrl);
   const [isLoading, setIsLoading] = useState(true);
+
+  // === 2. 新增：检查本地缓存记录 ===
+  useEffect(() => {
+    // 检查 localStorage 里是否记录过这张图已经加载成功
+    // key 使用 snapshotUrl，因为它包含了日期，明天日期变了 key 也就变了，会自动刷新
+    const isCached = localStorage.getItem(`snap_cached_${snapshotUrl}`);
+    
+    if (isCached === "true") {
+      setIsLoading(false); // 如果缓存过，直接取消 loading 状态
+    }
+  }, [snapshotUrl]);
+
+  // === 3. 新增：加载成功后写入记录 ===
+  const handleImageLoad = () => {
+    setIsLoading(false);
+    // 标记这张图今天已经加载成功了
+    localStorage.setItem(`snap_cached_${snapshotUrl}`, "true");
+  };
 
   return (
     <motion.div
@@ -62,7 +109,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       transition={{ delay: index * 0.1 }}
       className="group relative bg-endfield-surface border border-white/10 hover:border-endfield-accent transition-colors duration-300 flex flex-col h-full"
     >
-      {/* 1. 快照区域 */}
+      {/* 快照区域 */}
       <div className="relative h-40 w-full overflow-hidden border-b border-white/10 bg-black">
         <div className="data-scan-overlay" />
         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
@@ -70,11 +117,13 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
         <img 
           src={imgSrc} 
           alt={data.siteName} 
-          onLoad={() => setIsLoading(false)}
+          // 4. 绑定新的处理函数
+          onLoad={handleImageLoad}
           onError={() => {
             setImgSrc(FALLBACK_IMAGE);
             setIsLoading(false);
           }}
+          // 注意：如果 isLoading 为 false (命中缓存)，blur 为 0，图片直接清晰显示，没有过渡动画
           className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${isLoading ? 'blur-sm scale-110' : 'blur-0 scale-100'}`}
         />
 
@@ -91,7 +140,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
         </div>
       </div>
 
-      {/* 2. 信息区域 */}
+      {/* 信息区域 */}
       <div className="p-5 flex-1 flex flex-col relative">
         <div className="absolute -top-6 right-4 w-12 h-12 bg-black border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20">
            <img src={data.logo} alt="logo" className="w-full h-full object-contain" />
@@ -111,37 +160,12 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
           {data.description}
         </p>
 
-        {/* === 新增：技术栈展示区域 (带图标) === */}
+        {/* 技术栈展示 */}
         {data.stack && data.stack.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-             {data.stack.map((tech) => {
-               const iconSlug = getIconSlug(tech);
-               // 图标颜色设置为灰色 (9ca3af)，你可以改成 white
-               const iconUrl = `https://cdn.simpleicons.org/${iconSlug}/9ca3af`; 
-               
-               return (
-                 <div 
-                   key={tech} 
-                   className="flex items-center gap-1.5 border border-white/10 px-2 py-1 bg-white/5 hover:bg-white/10 hover:border-endfield-accent/50 transition-colors group/tag"
-                 >
-                   {/* 图标 */}
-                   <img 
-                     src={iconUrl} 
-                     alt="" 
-                     className="w-3 h-3 opacity-70 group-hover/tag:opacity-100 transition-opacity"
-                     onError={(e) => {
-                       // 如果图标加载失败（比如找不到这个技术），就隐藏 img 标签
-                       (e.target as HTMLImageElement).style.display = 'none';
-                     }}
-                   />
-                   
-                   {/* 文字 */}
-                   <span className="text-[9px] font-mono text-endfield-dim uppercase tracking-wider group-hover/tag:text-white transition-colors">
-                     {tech}
-                   </span>
-                 </div>
-               );
-             })}
+             {data.stack.map((tech) => (
+               <TechTag key={tech} tech={tech} />
+             ))}
           </div>
         )}
 

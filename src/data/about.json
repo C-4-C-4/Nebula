@@ -1,0 +1,19 @@
+{
+  "siteName": "ENDFIELD.SYS",
+  "logo": "https://placehold.co/150x150/FCEE21/000/png?text=E.I.",
+  "blogger": "Administrator",
+  "avatar": "https://placehold.co/400x400/18181b/FCEE21/png?text=OP",
+  "role": "Lead Developer / Operator",
+  "description": "驻扎在塔卫二的技术人员。热衷于构建高可用性的前端系统与交互体验。\n正在探索源石技术与旧时代代码的兼容性方案。\n\n目前主要活跃于工业区第4扇区，负责维护基地通信网络。",
+  "email": "contact@endfield.com",
+  "stack": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "TailwindCSS",
+    "Three.js",
+    "Framer Motion",
+    "Vercel",
+    "Git"
+  ]
+}

@@ -91,3 +91,15 @@ body {
 .group:hover img {
   filter: contrast(1.2) brightness(1.1);
 }
+
+/* src/app/globals.css */
+
+/* ...原本的内容... */
+
+/* === 新增：关于页面的扫描动画 === */
+@keyframes scan {
+  0% { top: 0; opacity: 0; }
+  10% { opacity: 0.5; }
+  90% { opacity: 0.5; }
+  100% { top: 100%; opacity: 0; }
+}

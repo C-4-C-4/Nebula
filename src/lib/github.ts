@@ -9,12 +9,14 @@ const octokit = new Octokit({
 const OWNER = process.env.GITHUB_OWNER!;
 const REPO = process.env.GITHUB_REPO!;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
-const POSTS_PATH = "posts"; // 你的文章存放目录
+const POSTS_PATH = "posts"; 
 
-// === 定义默认封面图 (终末地风格) ===
 const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED";
 
-// 1. 获取所有文件列表 (用于后台列表)
+// ==========================================
+// 1. 文章 (Markdown) 相关方法 (保持不变)
+// ==========================================
+
 export async function fetchGithubFiles() {
   try {
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
@@ -23,16 +25,13 @@ export async function fetchGithubFiles() {
       path: POSTS_PATH,
       ref: BRANCH,
     });
-
     if (!Array.isArray(data)) return [];
-    
-    // 过滤出 .md 文件
     return data
       .filter((file) => file.name.endsWith(".md"))
       .map((file) => ({
         name: file.name,
         slug: file.name.replace(".md", ""),
-        sha: file.sha, // 更新/删除文件时需要用到 SHA
+        sha: file.sha,
       }));
   } catch (error) {
     console.error("Error fetching files:", error);
@@ -40,7 +39,6 @@ export async function fetchGithubFiles() {
   }
 }
 
-// 2. 获取单文件内容 (用于编辑)
 export async function fetchGithubFileContent(slug: string) {
   try {
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
@@ -49,48 +47,33 @@ export async function fetchGithubFileContent(slug: string) {
       path: `${POSTS_PATH}/${slug}.md`,
       ref: BRANCH,
     });
-
-    // GitHub 返回的内容是 Base64 编码的
     if ("content" in data) {
       const content = Buffer.from(data.content, "base64").toString("utf-8");
       const { data: frontMatter, content: markdownBody } = matter(content);
-
-      // === 关键修改：如果没有封面图，注入默认图 ===
       if (!frontMatter.image || frontMatter.image.trim() === "") {
         frontMatter.image = DEFAULT_COVER;
       }
-
-      return {
-        slug,
-        sha: data.sha,
-        frontMatter,
-        content: markdownBody,
-      };
+      return { slug, sha: data.sha, frontMatter, content: markdownBody };
     }
     return null;
   } catch (error) {
-    console.error(`Error fetching file ${slug}:`, error);
     return null;
   }
 }
 
-// 3. 保存文件 (新增或更新)
 export async function saveGithubFile(slug: string, content: string, sha?: string) {
-  // 把内容转回 Base64
   const contentBase64 = Buffer.from(content).toString("base64");
-
   await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
     owner: OWNER,
     repo: REPO,
     path: `${POSTS_PATH}/${slug}.md`,
     message: `chore(blog): ${sha ? "update" : "create"} ${slug}`,
     content: contentBase64,
-    sha: sha, // 如果是更新，必须传 SHA；如果是新增，不传
+    sha: sha,
     branch: BRANCH,
   });
 }
 
-// 4. 删除文件
 export async function deleteGithubFile(slug: string, sha: string) {
   await octokit.request("DELETE /repos/{owner}/{repo}/contents/{path}", {
     owner: OWNER,
@@ -98,6 +81,53 @@ export async function deleteGithubFile(slug: string, sha: string) {
     path: `${POSTS_PATH}/${slug}.md`,
     message: `chore(blog): delete ${slug}`,
     sha: sha,
+    branch: BRANCH,
+  });
+}
+
+// ==========================================
+// 2. 新增：JSON 数据 (Data) 相关方法
+// ==========================================
+
+// 读取 JSON 文件 (如 src/data/about.json)
+export async function fetchJsonData(filename: string) {
+  try {
+    const path = `src/data/${filename}`; // 约定数据都在 src/data 下
+    const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
+      owner: OWNER,
+      repo: REPO,
+      path: path,
+      ref: BRANCH,
+    });
+
+    if ("content" in data) {
+      const content = Buffer.from(data.content, "base64").toString("utf-8");
+      return {
+        sha: data.sha,
+        data: JSON.parse(content), // 直接返回解析后的 JSON 对象
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error(`Error fetching json ${filename}:`, error);
+    return null;
+  }
+}
+
+// 保存 JSON 文件
+export async function saveJsonData(filename: string, jsonData: any, sha: string) {
+  const path = `src/data/${filename}`;
+  // 格式化 JSON 方便阅读
+  const content = JSON.stringify(jsonData, null, 2);
+  const contentBase64 = Buffer.from(content).toString("base64");
+
+  await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
+    owner: OWNER,
+    repo: REPO,
+    path: path,
+    message: `chore(data): update ${filename}`,
+    content: contentBase64,
+    sha: sha, // 更新必须传 SHA
     branch: BRANCH,
   });
 }
