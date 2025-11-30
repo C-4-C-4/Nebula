@@ -7,7 +7,11 @@
     "email": "kaltsit@rhodesisland.com",
     "description": "罗德岛制药公司内部网络入口。仅限授权人员访问，违者将被强制清除记忆。",
     "url": "https://ak.hypergryph.com",
-    "stack": ["Vue", "Nuxt.js", "WebGL"]
+    "stack": [
+      "Vue",
+      "Nuxt.js",
+      "WebGL"
+    ]
   },
   {
     "id": "LINK_002",
@@ -17,7 +21,12 @@
     "email": "admin@endfield.com",
     "description": "终末地工业官方站点。开拓、建设、生存。塔卫二环境数据实时监控中。",
     "url": "https://endfield.hypergryph.com",
-    "stack": ["React", "Three.js", "GSAP", "Next.js"]
+    "stack": [
+      "React",
+      "Three.js",
+      "GSAP",
+      "Next.js"
+    ]
   },
   {
     "id": "LINK_003",
@@ -27,6 +36,20 @@
     "email": "support@vercel.com",
     "description": "The React Framework for the Web. 测试自动截图功能。",
     "url": "https://nextjs.org",
-    "stack": ["React", "Vercel", "Tailwind"]
+    "stack": [
+      "React",
+      "Vercel",
+      "Tailwind"
+    ]
+  },
+  {
+    "id": "LINK_355",
+    "siteName": "github",
+    "blogger": "github",
+    "url": "https://github.com/",
+    "logo": "",
+    "email": "",
+    "description": "github",
+    "stack": []
   }
 ]
