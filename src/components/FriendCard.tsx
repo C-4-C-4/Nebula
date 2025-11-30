@@ -6,14 +6,13 @@ interface Friend {
   id: string;
   blogger: string;
   siteName: string;
-  logo: string;
+  logo?: string;
   email: string;
   description: string;
   url: string;
   stack?: string[];
 }
 
-// 图标辅助函数 (保持不变)
 const getIconSlug = (name: string) => {
   const lowerName = name.toLowerCase().trim();
   const map: Record<string, string> = {
@@ -34,12 +33,10 @@ const getIconSlug = (name: string) => {
     "webgl": "webgl",
     "gsap": "greensock"
   };
-  
   if (map[lowerName]) return map[lowerName];
   return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
 };
 
-// 技术标签子组件 (保持不变)
 const TechTag = ({ tech }: { tech: string }) => {
   const [isError, setIsError] = useState(false);
   const iconSlug = getIconSlug(tech);
@@ -65,7 +62,84 @@ const TechTag = ({ tech }: { tech: string }) => {
 export default function FriendCard({ data, index }: { data: Friend; index: number }) {
   const FALLBACK_IMAGE = "https://placehold.co/600x340/09090b/333/png?text=NO_SIGNAL";
 
-  // 1. URL 生成逻辑 (保持不变，已包含日期v参数)
+  // === Logo 逻辑开始 ===
+  
+  // 1. 计算兜底的首字母占位图
+  const placeholderLogo = `https://placehold.co/128x128/000/FFF?text=${data.siteName.charAt(0)}`;
+  
+  // 2. 初始化状态
+  // 为了避免服务端水合错误，初始值先给 placeholder 或 manual config
+  // 真实的缓存读取放在 useEffect 里
+  const [logoSrc, setLogoSrc] = useState<string>(
+    (data.logo && data.logo.trim() !== "") ? data.logo : placeholderLogo
+  );
+  
+  const [logoAttempt, setLogoAttempt] = useState(0);
+  const [isUsingCache, setIsUsingCache] = useState(false); // 标记是否正在使用缓存
+
+  const getDomain = (url: string) => {
+    try { return new URL(url).hostname; } catch { return ""; }
+  };
+
+  // 3. 核心逻辑：加载 Logo
+  useEffect(() => {
+    // A. 如果有手动配置，直接结束
+    if (data.logo && data.logo.trim() !== "") return;
+
+    // B. 尝试读取本地缓存
+    const cacheKey = `favicon_url_${data.url}`;
+    const cachedUrl = localStorage.getItem(cacheKey);
+
+    if (cachedUrl) {
+      setLogoSrc(cachedUrl);
+      setIsUsingCache(true); // 标记命中缓存，不再进行 API 轮询
+      return;
+    }
+
+    // C. 如果没有缓存，开始 API 轮询逻辑
+    const domain = getDomain(data.url);
+    if (!domain) return;
+
+    const providers = [
+      `https://api.iowen.cn/favicon/${domain}.png`,
+      `https://api.uomg.com/api/get.favicon?url=${data.url}`,
+      `https://favicon.im/${domain}`,
+      placeholderLogo
+    ];
+
+    if (logoAttempt < providers.length) {
+       setLogoSrc(providers[logoAttempt]);
+    }
+  }, [data.url, data.logo, logoAttempt, placeholderLogo]);
+
+  // 4. 错误处理
+  const handleLogoError = () => {
+    // 如果当前正在使用缓存的 URL 报错了（比如缓存的图片过期了），则清除缓存，并从头开始尝试
+    if (isUsingCache) {
+      localStorage.removeItem(`favicon_url_${data.url}`);
+      setIsUsingCache(false);
+      setLogoAttempt(0); // 重置尝试次数
+      return;
+    }
+
+    // 正常轮询失败，尝试下一个
+    if (logoAttempt < 3) {
+      setLogoAttempt(prev => prev + 1);
+    }
+  };
+
+  // 5. 成功处理：缓存有效的 URL
+  const handleLogoLoad = () => {
+    // 如果是手动配置的或者是默认占位图，不缓存
+    if ((data.logo && data.logo.trim() !== "") || logoSrc === placeholderLogo) return;
+    
+    // 缓存当前成功的 URL
+    localStorage.setItem(`favicon_url_${data.url}`, logoSrc);
+  };
+  // === Logo 逻辑结束 ===
+
+
+  // === 快照逻辑 (保持不变) ===
   const snapshotUrl = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     const params = new URLSearchParams({
@@ -76,7 +150,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       viewport: "1280x800",
       nrg: "1",
       ttl: "86400000",
-      v: today // 每天变一次，保证每天只请求一次新图
+      v: today 
     });
     return `https://api.microlink.io/?${params.toString()}`;
   }, [data.url]);
@@ -84,21 +158,13 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
   const [imgSrc, setImgSrc] = useState(snapshotUrl);
   const [isLoading, setIsLoading] = useState(true);
 
-  // === 2. 新增：检查本地缓存记录 ===
   useEffect(() => {
-    // 检查 localStorage 里是否记录过这张图已经加载成功
-    // key 使用 snapshotUrl，因为它包含了日期，明天日期变了 key 也就变了，会自动刷新
     const isCached = localStorage.getItem(`snap_cached_${snapshotUrl}`);
-    
-    if (isCached === "true") {
-      setIsLoading(false); // 如果缓存过，直接取消 loading 状态
-    }
+    if (isCached === "true") setIsLoading(false);
   }, [snapshotUrl]);
 
-  // === 3. 新增：加载成功后写入记录 ===
-  const handleImageLoad = () => {
+  const handleSnapshotLoad = () => {
     setIsLoading(false);
-    // 标记这张图今天已经加载成功了
     localStorage.setItem(`snap_cached_${snapshotUrl}`, "true");
   };
 
@@ -117,13 +183,11 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
         <img 
           src={imgSrc} 
           alt={data.siteName} 
-          // 4. 绑定新的处理函数
-          onLoad={handleImageLoad}
+          onLoad={handleSnapshotLoad}
           onError={() => {
             setImgSrc(FALLBACK_IMAGE);
             setIsLoading(false);
           }}
-          // 注意：如果 isLoading 为 false (命中缓存)，blur 为 0，图片直接清晰显示，没有过渡动画
           className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${isLoading ? 'blur-sm scale-110' : 'blur-0 scale-100'}`}
         />
 
@@ -142,8 +206,15 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
 
       {/* 信息区域 */}
       <div className="p-5 flex-1 flex flex-col relative">
-        <div className="absolute -top-6 right-4 w-12 h-12 bg-black border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20">
-           <img src={data.logo} alt="logo" className="w-full h-full object-contain" />
+        <div className="absolute -top-6 right-4 w-12 h-12 bg-[#09090b] border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20 shadow-lg">
+           {/* Logo 图片 */}
+           <img 
+             src={logoSrc} 
+             alt="logo" 
+             className="w-full h-full object-contain rounded-sm" 
+             onError={handleLogoError} 
+             onLoad={handleLogoLoad} // 绑定成功回调，写入缓存
+           />
         </div>
 
         <div className="mb-3 pr-10">
@@ -160,7 +231,6 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
           {data.description}
         </p>
 
-        {/* 技术栈展示 */}
         {data.stack && data.stack.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
              {data.stack.map((tech) => (
