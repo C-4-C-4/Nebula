@@ -133,5 +133,19 @@
       "Node.js",
       "TypeScript"
     ]
+  },
+  {
+    "id": "LINK_554",
+    "siteName": "ATao-Blog",
+    "blogger": "ATao",
+    "url": "https://blog.atao.cyou/",
+    "logo": "https://cdn.atao.cyou/Web/Avatar.png",
+    "snapshot": "",
+    "email": "",
+    "description": "做自己喜欢的事",
+    "stack": [
+      "Hexo",
+      "Twikoo"
+    ]
   }
 ]
