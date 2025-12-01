@@ -1,42 +1,46 @@
 import type { Metadata } from "next";
-import { Oswald, JetBrains_Mono } from "next/font/google";
+// 1. 删除 next/font/google 的引用
+// 2. 引入本地字体包的 CSS
+import "@fontsource/oswald";
+import "@fontsource/jetbrains-mono";
+
 import "./globals.css";
-// 引入 Footer
 import Footer from "@/components/Footer"; 
+import Navbar from "@/components/Navbar"; 
+import { fetchJsonData } from "@/lib/github"; 
 
-const oswald = Oswald({ 
-  subsets: ["latin"], 
-  variable: "--font-oswald",
-  display: "swap",
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const file = await fetchJsonData("config.json");
+  const title = file?.data?.siteTitle || "Endfield Blog System";
+  return {
+    title: title,
+    description: "Industrial Techwear Style Blog",
+  };
+}
 
-const jetbrains = JetBrains_Mono({ 
-  subsets: ["latin"], 
-  variable: "--font-jetbrains",
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "Endfield Blog System",
-  description: "Industrial Techwear Style Blog",
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const file = await fetchJsonData("config.json");
+  const logoText = file?.data?.logoText || "ENDFIELD.SYS";
+
   return (
-    <html lang="en" className={`${oswald.variable} ${jetbrains.variable}`}>
+    <html lang="en">
+      {/* 
+         3. 移除了 className 中的变量名 (如 variable-oswald)
+         因为我们现在直接在 tailwind.config.ts 里指定字体名称，不再依赖 CSS 变量 
+      */}
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <div className="noise-bg" />
         
-        {/* flex-grow 让内容区撑开，确保 footer 始终在底部 */}
+        <Navbar logoText={logoText} />
+
         <div className="flex-grow">
           {children}
         </div>
 
-        {/* 底部 Footer */}
         <Footer />
       </body>
     </html>

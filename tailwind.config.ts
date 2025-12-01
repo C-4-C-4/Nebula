@@ -18,8 +18,8 @@ content: [
         },
       },
       fontFamily: {
-        sans: ["var(--font-oswald)"],
-        mono: ["var(--font-jetbrains)"],
+        sans: ["Oswald", "sans-serif"], 
+        mono: ["JetBrains Mono", "monospace"],
       },
       backgroundImage: {
         'tech-grid': "linear-gradient(to right, #27272a 1px, transparent 1px), linear-gradient(to bottom, #27272a 1px, transparent 1px)",

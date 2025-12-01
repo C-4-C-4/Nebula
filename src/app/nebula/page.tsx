@@ -1,10 +1,10 @@
 import { getSortedPostsData } from "@/lib/posts";
 import friendsData from "@/data/friends.json";
-import NebulaScene from "@/components/NebulaScene";
 import Link from "next/link";
+import NebulaContainer from "@/components/NebulaContainer"; // 引入刚才创建的中间组件
 
 export default function NebulaPage() {
-  // 1. 获取文章数据
+  // 1. 数据获取逻辑 (在服务端运行)
   const posts = getSortedPostsData().map(post => ({
     id: `post-${post.id}`,
     label: post.title,
@@ -13,7 +13,6 @@ export default function NebulaPage() {
     date: post.date
   }));
 
-  // 2. 获取友链数据
   const friends = friendsData.map(friend => ({
     id: `friend-${friend.id}`,
     label: friend.siteName,
@@ -22,20 +21,22 @@ export default function NebulaPage() {
     date: "LINK"
   }));
 
-  // 3. 合并所有节点
   const allNodes = [...posts, ...friends];
 
   return (
-    <main className="w-full h-screen relative overflow-hidden">
-      {/* 3D 场景容器 */}
+    // CSS 保持不变，确保满屏
+    <div className="fixed inset-0 w-screen h-screen bg-black z-50 overflow-hidden">
+      
+      {/* 2. 3D 场景容器 */}
       <div className="absolute inset-0 z-0">
-        <NebulaScene nodes={allNodes} />
+        {/* 将数据传给客户端组件 */}
+        <NebulaContainer nodes={allNodes} />
       </div>
 
-      {/* UI 覆盖层 (HUD) */}
+      {/* 3. UI 覆盖层 (HUD) */}
       <div className="absolute top-0 left-0 w-full h-full z-10 pointer-events-none p-8 flex flex-col justify-between">
         
-        {/* 顶部标题 */}
+        {/* 顶部标题栏 */}
         <div className="flex justify-between items-start pointer-events-auto">
           <div>
             <h1 className="text-4xl font-bold text-white uppercase tracking-tighter">
@@ -64,6 +65,6 @@ export default function NebulaPage() {
         </div>
 
       </div>
-    </main>
+    </div>
   );
 }

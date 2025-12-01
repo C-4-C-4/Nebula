@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react"; // 1. 引入 state
-import { useRouter } from "next/navigation"; // 2. 引入路由
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import TechButton from "@/components/TechButton";
 import ScrambleText from "@/components/ScrambleText";
-import LoadingOverlay from "@/components/LoadingOverlay"; // 3. 引入遮罩组件
+import LoadingOverlay from "@/components/LoadingOverlay"; // 确保引入
 
+// 动态导入 3D 核心
 const HeroCore = dynamic(() => import("@/components/HeroCore"), {
   ssr: false,
   loading: () => (
@@ -18,7 +19,7 @@ const HeroCore = dynamic(() => import("@/components/HeroCore"), {
   ),
 });
 
-// 定义归档专属的代码日志
+// 归档页面的加载日志
 const ARCHIVE_LOGS = [
   "REQUESTING_ACCESS: /ROOT/ARCHIVES",
   "AUTH_TOKEN: VERIFIED",
@@ -29,29 +30,37 @@ const ARCHIVE_LOGS = [
   "INTERFACE_READY."
 ];
 
-export default function HomeHero() {
+// 接受自定义标题 Props
+export default function HomeHero({ 
+  line1 = "SYSTEM", 
+  line2 = "OVERRIDE" 
+}: { 
+  line1?: string; 
+  line2?: string; 
+}) {
   const router = useRouter();
   const [isArchiving, setIsArchiving] = useState(false);
 
-  // 处理点击事件
+  // 处理点击：触发动画 -> 跳转
   const handleArchiveClick = () => {
     setIsArchiving(true);
-    // 播放 1.5秒 动画后跳转
     setTimeout(() => {
       router.push("/archives");
-    }, 1500);
+    }, 1500); // 1.5秒动画时间
   };
 
   return (
     <>
-      {/* 4. 放置全屏遮罩 */}
+      {/* 1. 加载全屏遮罩 */}
       <LoadingOverlay isLoading={isArchiving} customLogs={ARCHIVE_LOGS} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-24">
         <div className="border-l-4 border-endfield-accent pl-8 py-4">
           <h1 className="text-7xl md:text-9xl font-bold uppercase tracking-tighter leading-[0.85] mb-6">
-            System<br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-700">Override</span>
+            {line1}<br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-700">
+              {line2}
+            </span>
           </h1>
           
           <div className="flex gap-6 text-sm font-mono text-endfield-dim">
@@ -60,7 +69,7 @@ export default function HomeHero() {
           </div>
           
           <div className="mt-8">
-             {/* 5. 移除 Link，改为 div + onClick */}
+             {/* 2. 绑定点击事件，不再使用 Link 包裹，完全由 JS 控制跳转 */}
              <div className="inline-block cursor-pointer" onClick={handleArchiveClick}>
                <TechButton text="ACCESS_ARCHIVES" />
              </div>

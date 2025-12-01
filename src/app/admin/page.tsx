@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { fetchGithubFiles, deleteGithubFile } from "@/lib/github";
-import { deleteSession } from "@/lib/auth"; 
+import { deleteSession, verifySession } from "@/lib/auth"; // 1. 引入 verifySession
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation"; 
+import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
-import AdminLogout from "@/components/AdminLogout"; // 1. 引入新组件
+import AdminLogout from "@/components/AdminLogout";
 
-// Server Action 保持不变
 async function deleteAction(formData: FormData) {
   "use server";
   const slug = formData.get("slug") as string;
@@ -19,19 +18,27 @@ async function deleteAction(formData: FormData) {
   }
 }
 
-// 2. 这里的 logoutAction 将作为 props 传给 Client Component
 async function logoutAction() {
   "use server";
-  await deleteSession(); 
-  redirect("/login");    
+  await deleteSession();
 }
 
 export default async function AdminDashboard() {
+  // === 2. 页面级“门神”检查 (关键修复) ===
+  // 每次进入页面渲染前，必须先验证 session
+  // 如果验证失败，直接在服务端层面重定向，绝不渲染后面的组件
+  const isAuth = await verifySession();
+  if (!isAuth) {
+    redirect("/login");
+  }
+  // ======================================
+
   const files = await fetchGithubFiles();
 
   return (
     <main className="min-h-screen bg-[#050505] text-white font-mono selection:bg-endfield-accent selection:text-black overflow-x-hidden">
       <MatrixBackground />
+      {/* ... 其余代码保持不变 ... */}
       <Navbar />
 
       <div className="fixed top-16 left-0 w-full h-12 border-b border-white/10 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-between px-6">
@@ -92,14 +99,11 @@ export default async function AdminDashboard() {
              </div>
           </Link>
 
-          {/* 3. 使用新组件，并将 Server Action 作为 prop 传入 */}
           <AdminLogout onLogout={logoutAction} />
-
         </div>
 
-        {/* 右侧列表 (保持不变) */}
+        {/* 右侧列表 */}
         <div className="lg:col-span-3">
-           {/* ...省略列表代码，保持不变... */}
            <div className="flex justify-between items-end mb-6">
             <h2 className="text-xl font-bold flex items-center gap-2">
               <span className="w-2 h-2 bg-endfield-accent" />
@@ -129,6 +133,11 @@ export default async function AdminDashboard() {
                 </div>
               </div>
             ))}
+            {files.length === 0 && (
+              <div className="h-32 flex items-center justify-center border border-dashed border-white/10 text-gray-600">
+                NO_DATA_FOUND // INITIATE_CREATE_SEQUENCE
+              </div>
+            )}
           </div>
         </div>
 
