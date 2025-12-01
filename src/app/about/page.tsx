@@ -1,61 +1,20 @@
-"use client";
-import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import aboutData from "@/data/about.json";
-import { useState } from "react";
+import Comments from "@/components/Comments"; 
+import { fetchJsonData } from "@/lib/github";
+import Navbar from "@/components/Navbar";
+import TechModule from "@/components/TechModule"; // 引入刚才创建的新组件
 
-// 图标获取逻辑保持不变
-const getIconSlug = (name: string) => {
-  const lowerName = name.toLowerCase().trim();
-  const map: Record<string, string> = {
-    "next.js": "nextdotjs",
-    "react": "react",
-    "typescript": "typescript",
-    "tailwindcss": "tailwindcss",
-    "three.js": "threedotjs",
-    "framer motion": "framer",
-    "vercel": "vercel",
-    "git": "git",
-    "c#": "csharp",
-    "vue": "vuedotjs",
-    "nuxt": "nuxtdotjs"
-  };
-  
-  if (map[lowerName]) return map[lowerName];
-  return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
-};
+export default async function AboutPage() {
+  // 服务端读取配置
+  const file = await fetchJsonData("config.json");
+  const giscusConfig = file?.data?.giscusConfig || {};
 
-// 组件逻辑保持不变
-const TechModule = ({ tech }: { tech: string }) => {
-  const [isError, setIsError] = useState(false);
-  const iconSlug = getIconSlug(tech);
-  const iconUrl = `https://cdn.simpleicons.org/${iconSlug}/9ca3af`;
-
-  return (
-    <div className="group flex items-center gap-3 bg-white/5 border border-white/10 px-4 py-3 hover:border-endfield-accent transition-colors">
-      <div className="w-1 h-full bg-endfield-accent/50 group-hover:bg-endfield-accent transition-colors" />
-      
-      {!isError && (
-         <img 
-           src={iconUrl} 
-           alt="" 
-           className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity"
-           onError={() => setIsError(true)} 
-         />
-      )}
-      
-      <span className="font-mono text-sm text-gray-400 group-hover:text-white uppercase tracking-wider">
-        {tech}
-      </span>
-    </div>
-  );
-};
-
-export default function AboutPage() {
   return (
     <main className="min-h-screen relative text-white selection:bg-endfield-accent selection:text-black">
       <MatrixBackground />
       <div className="fixed inset-0 bg-gradient-to-t from-endfield-base via-transparent to-transparent pointer-events-none z-0" />
+      
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 pt-32 pb-20 relative z-10">
@@ -84,21 +43,16 @@ export default function AboutPage() {
            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-endfield-accent" />
            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-endfield-accent" />
 
-           {/* === 左侧：个人信息 === */}
+           {/* 左侧：个人信息 */}
            <div className="lg:col-span-4 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
-              
               <div className="relative w-full aspect-square border-2 border-white/10 p-2 group">
                  <div className="absolute inset-0 bg-endfield-accent/5 group-hover:bg-endfield-accent/10 transition-colors" />
-                 
-                 {/* 这里的 animate-[scan_3s_linear_infinite] 现在会引用 globals.css 里的动画 */}
                  <div className="absolute w-full h-1 bg-endfield-accent/50 top-0 left-0 animate-[scan_3s_linear_infinite] opacity-50" />
-                 
                  <img 
                    src={aboutData.avatar} 
                    alt="Avatar" 
                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
                  />
-                 
                  <div className="absolute bottom-4 right-4 text-[10px] font-mono text-endfield-accent bg-black/80 px-2 py-1">
                    IMG_SOURCE_RAW
                  </div>
@@ -109,7 +63,6 @@ export default function AboutPage() {
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">CODENAME</label>
                    <div className="text-3xl font-bold uppercase tracking-wider">{aboutData.blogger}</div>
                  </div>
-                 
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">AFFILIATION</label>
                    <div className="flex items-center gap-2">
@@ -117,7 +70,6 @@ export default function AboutPage() {
                      <span className="text-sm font-bold">{aboutData.siteName}</span>
                    </div>
                  </div>
-
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">ROLE</label>
                    <div className="text-sm font-mono text-gray-300 border border-white/10 px-3 py-2 bg-white/5">
@@ -137,9 +89,8 @@ export default function AboutPage() {
               </div>
            </div>
 
-           {/* === 右侧：详细介绍与技术栈 === */}
+           {/* 右侧：详细介绍与技术栈 */}
            <div className="lg:col-span-8 flex flex-col gap-10">
-              
               <div>
                  <h3 className="text-lg font-bold text-endfield-accent mb-4 flex items-center gap-2">
                    <span className="w-1 h-4 bg-endfield-accent" />
@@ -159,6 +110,7 @@ export default function AboutPage() {
                    // SYSTEM_MODULES
                  </h3>
                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {/* 使用新组件 */}
                     {aboutData.stack.map(tech => (
                       <TechModule key={tech} tech={tech} />
                     ))}
@@ -166,17 +118,16 @@ export default function AboutPage() {
               </div>
 
               <div className="mt-auto border-t border-dashed border-white/20 pt-4 flex justify-between text-[10px] text-gray-500 font-mono">
-                 {/* 
-                    关键修改：添加 suppressHydrationWarning 属性
-                    这告诉 Next.js：服务端和客户端的时间可能不一致，请忽略这个差异，直接使用客户端的时间。
-                 */}
                  <span suppressHydrationWarning>LAST_SYNC: {new Date().toLocaleDateString()}</span>
                  <span>SECURITY_CLEARANCE: LEVEL_5</span>
               </div>
            </div>
         </div>
-        
-        {/* 已移除底部的 <style jsx global>，改为在 globals.css 中定义 */}
+
+        {/* 评论区 */}
+        <div className="mt-12 max-w-4xl mx-auto">
+           <Comments config={giscusConfig} />
+        </div>
 
       </div>
     </main>

@@ -1,10 +1,11 @@
 import { getPostData, getSortedPostsData } from "@/lib/posts";
+import { fetchJsonData } from "@/lib/github"; 
 import ReactMarkdown from "react-markdown";
 import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import Link from "next/link";
+import Comments from "@/components/Comments"; 
 
-// 1. 生成静态路径 (SSG)
 export async function generateStaticParams() {
   const posts = getSortedPostsData();
   return posts.map((post) => ({
@@ -12,15 +13,19 @@ export async function generateStaticParams() {
   }));
 }
 
-// 2. 页面组件
 export default async function PostPage({ params }: { params: { slug: string } }) {
-  const { slug } = await params; // 修正 await 参数读取
+  const { slug } = await params;
   const post = getPostData(slug);
+  
+  // 读取评论配置
+  const file = await fetchJsonData("config.json");
+  const giscusConfig = file?.data?.giscusConfig || {};
 
   return (
     <main className="min-h-screen relative bg-endfield-base text-gray-300 selection:bg-endfield-accent selection:text-black font-sans">
       <MatrixBackground />
-      <Navbar />
+      {/* 这里的 Navbar 不需要手动引入，因为 RootLayout 已经加了。但如果你之前在 Layout 没加，这里需要加。 */}
+      {/* 按照之前的指令，RootLayout 已经有了，所以这里不需要写 <Navbar /> */}
       
       {/* 顶部进度条装饰 */}
       <div className="fixed top-16 left-0 w-full h-[1px] bg-white/10 z-40">
@@ -28,7 +33,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
       </div>
 
       <article className="max-w-4xl mx-auto px-6 pt-32 pb-20 relative z-10">
-        {/* 头部信息 */}
         <header className="mb-12 border-b border-white/10 pb-8">
            <div className="flex gap-4 mb-4 text-xs font-mono text-endfield-accent">
              <Link href="/" className="hover:underline">&lt; BACK_TO_ROOT</Link>
@@ -44,8 +48,6 @@ export default async function PostPage({ params }: { params: { slug: string } })
            </div>
         </header>
 
-        {/* 正文区域 - 使用 Tailwind Typography 插件美化 Markdown */}
-        {/* 注意：需要安装 @tailwindcss/typography 并在 config 里配置，或者手写样式 */}
         <div className="prose prose-invert prose-lg max-w-none 
           prose-headings:font-bold prose-headings:uppercase prose-headings:tracking-tight
           prose-h2:text-white prose-h2:border-l-4 prose-h2:border-endfield-accent prose-h2:pl-4
@@ -57,11 +59,14 @@ export default async function PostPage({ params }: { params: { slug: string } })
           <ReactMarkdown>{post.content}</ReactMarkdown>
         </div>
 
-        {/* 底部签名 */}
         <div className="mt-20 pt-8 border-t border-dashed border-white/20 text-right font-mono text-xs text-endfield-dim">
            LOG_END_OF_FILE <br/>
            OPERATOR_SIGNATURE_VERIFIED
         </div>
+
+        {/* 评论区 */}
+        <Comments config={giscusConfig} />
+
       </article>
     </main>
   );

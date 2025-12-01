@@ -1,14 +1,19 @@
-import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import FriendCard from "@/components/FriendCard";
-import friendsData from "@/data/friends.json"; // 引入 JSON 数据
+import friendsData from "@/data/friends.json";
+import { fetchJsonData } from "@/lib/github";
+import Comments from "@/components/Comments"; 
 
-export default function FriendsPage() {
+export default async function FriendsPage() {
+  const file = await fetchJsonData("config.json");
+  const giscusConfig = file?.data?.giscusConfig || {};
+
   return (
     <main className="min-h-screen relative text-white selection:bg-endfield-accent selection:text-black">
       <MatrixBackground />
       <div className="fixed inset-0 bg-gradient-to-t from-endfield-base via-transparent to-transparent pointer-events-none z-0" />
-      <Navbar />
+      
+      {/* RootLayout 已包含 Navbar */}
 
       <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 relative z-10">
         
@@ -30,9 +35,8 @@ export default function FriendsPage() {
            ))}
         </div>
 
-        {/* 3. 申请友链说明区域 (做成工业协议的样子) */}
-        <div className="border border-white/10 bg-black/40 p-8 max-w-3xl mx-auto relative overflow-hidden">
-           {/* 背景大字装饰 */}
+        {/* 3. 申请友链说明区域 */}
+        <div className="border border-white/10 bg-black/40 p-8 max-w-3xl mx-auto relative overflow-hidden mb-12">
            <div className="absolute -right-4 -bottom-4 text-9xl font-bold text-white/5 pointer-events-none select-none">
              JOIN
            </div>
@@ -47,28 +51,27 @@ export default function FriendsPage() {
                 <div className="space-y-4">
                   <p className="text-white border-b border-white/10 pb-2">REQUIRED_FIELDS:</p>
                   <ul className="space-y-2 list-disc list-inside text-xs">
-                    <li>Site Name (站点名称)</li>
-                    <li>Site URL (站点链接)</li>
-                    <li>Logo URL (图标链接)</li>
-                    <li>Snapshot (网站快照/封面)</li>
-                    <li>Description (简短介绍)</li>
+                    <li>Site Name</li>
+                    <li>Site URL</li>
+                    <li>Logo URL (Optional)</li>
+                    <li>Description</li>
                   </ul>
                 </div>
                 
                 <div className="space-y-4">
                    <p className="text-white border-b border-white/10 pb-2">HOW_TO_APPLY:</p>
                    <p className="text-xs leading-relaxed">
-                     发送邮件至 <span className="text-white underline">your_email@example.com</span><br/>
-                     或在 GitHub 仓库提交 PR 修改 <span className="bg-white/10 px-1">friends.json</span>。
+                     Please leave a comment below with your site details.<br/>
+                     Admin will review and update the registry.
                    </p>
-                   <div className="pt-2">
-                     <button className="bg-white/5 hover:bg-endfield-accent hover:text-black border border-white/20 px-4 py-2 text-xs transition-colors uppercase">
-                       DOWNLOAD_TEMPLATE
-                     </button>
-                   </div>
                 </div>
              </div>
            </div>
+        </div>
+
+        {/* 4. 评论区 */}
+        <div className="max-w-4xl mx-auto">
+          <Comments config={giscusConfig} />
         </div>
 
       </div>
