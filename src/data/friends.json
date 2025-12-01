@@ -36,15 +36,61 @@
     "logo": "https://dn-qiniu-avatar.qbox.me/avatar/7da7e82f04de94c795db0301c3397bb6?",
     "email": "",
     "description": "一个有梦想的咸鱼",
-    "url": "https://www.furryowo.top/ ",
+    "url": "https://www.furryowo.top/",
     "stack": [
       "Hugo",
       "Go",
       "React"
     ]
   },
+          {
+    "id": "LINK_004",
+    "blogger": "Sakitami",
+    "siteName": "Sakitami 的集装箱",
+    "logo": "https://blog.skihome.xyz/uploads/avatar.jpg",
+    "email": "",
+    "description": "我已经无敌了！",
+    "url": "https://blog.skihome.xyz/",
+    "stack": [
+      "Typecho",
+      "PHP",
+      "MySQL",
+      "LAMP"
+    ]
+  },
   {
-    "id": "LINK_355",
+    "id": "LINK_005",
+    "blogger": "xzadudu179",
+    "siteName": "XME Notes Library",
+    "logo": "https://avatars.githubusercontent.com/u/129601567?v=4",
+    "email": "",
+    "description": "你好哇~ 我是 xzadudu179，自设名九镹，是一个正在四处游荡与探索的小生物！",
+    "url": "https://blog.xzadudu179.top/",
+    "stack": [
+      "Hexo",
+      "Node.js",
+      "JavaScript",
+      "HTML"
+    ]
+  },
+    {
+    "id": "LINK_006",
+    "blogger": "中二蘑菇",
+    "siteName": "中二病晚期の物語",
+    "logo": "https://cdn-imfurry.imfurry.com/avatar/zebwqFurryAvatar.png",
+    "email": "",
+    "description": "一只狐狸敲出的一个奇迹",
+    "url": "https://imfurry.com/",
+    "stack": [
+      "WordPress",
+      "PHP",
+      "MySQL"
+    ]
+  },
+  
+  
+  {
+    "id": "LINK_000",
     "siteName": "github",
     "blogger": "github",
     "url": "https://github.com/",
