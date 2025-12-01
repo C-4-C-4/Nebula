@@ -1,13 +1,12 @@
 import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect } from "next/navigation"; // 确保引入了 redirect
 import Navbar from "@/components/Navbar";
 
 async function saveAboutAction(formData: FormData) {
   "use server";
   const sha = formData.get("sha") as string;
   
-  // 构造新的 JSON 对象
   const newData = {
     siteName: formData.get("siteName"),
     logo: formData.get("logo"),
@@ -16,13 +15,15 @@ async function saveAboutAction(formData: FormData) {
     role: formData.get("role"),
     description: formData.get("description"),
     email: formData.get("email"),
-    // 将逗号分隔的字符串转回数组
     stack: (formData.get("stack") as string).split(",").map(s => s.trim()).filter(s => s)
   };
 
   await saveJsonData("about.json", newData, sha);
   revalidatePath("/about");
   revalidatePath("/admin/about");
+  
+  // === 修复点：添加跳转 ===
+  redirect("/admin");
 }
 
 export default async function AdminAboutPage() {
@@ -33,7 +34,7 @@ export default async function AdminAboutPage() {
 
   return (
     <main className="min-h-screen bg-[#09090b] text-white font-mono selection:bg-endfield-accent selection:text-black">
-      <Navbar />
+      <Navbar logoText="ENDFIELD.SYS" /> 
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-20">
         <h1 className="text-2xl text-endfield-accent mb-8 border-b border-white/10 pb-2">
           EDIT: ABOUT_PROFILE

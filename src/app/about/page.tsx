@@ -3,10 +3,9 @@ import aboutData from "@/data/about.json";
 import Comments from "@/components/Comments"; 
 import { fetchJsonData } from "@/lib/github";
 import Navbar from "@/components/Navbar";
-import TechModule from "@/components/TechModule"; // 引入刚才创建的新组件
+import TechModule from "@/components/TechModule";
 
 export default async function AboutPage() {
-  // 服务端读取配置
   const file = await fetchJsonData("config.json");
   const giscusConfig = file?.data?.giscusConfig || {};
 
@@ -14,12 +13,11 @@ export default async function AboutPage() {
     <main className="min-h-screen relative text-white selection:bg-endfield-accent selection:text-black">
       <MatrixBackground />
       <div className="fixed inset-0 bg-gradient-to-t from-endfield-base via-transparent to-transparent pointer-events-none z-0" />
-      
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 pt-32 pb-20 relative z-10">
         
-        {/* 页面标题 */}
+        {/* 标题部分 */}
         <div className="mb-12 border-l-4 border-endfield-accent pl-6 py-2 flex justify-between items-end">
            <div>
              <h1 className="text-4xl md:text-6xl font-bold uppercase mb-2">
@@ -35,16 +33,16 @@ export default async function AboutPage() {
            </div>
         </div>
 
-        {/* 主体卡片容器 */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-endfield-surface/50 border border-white/10 p-8 relative backdrop-blur-sm">
-           
            <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-endfield-accent" />
            <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-endfield-accent" />
            <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-endfield-accent" />
            <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-endfield-accent" />
 
-           {/* 左侧：个人信息 */}
+           {/* 左侧栏 */}
            <div className="lg:col-span-4 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
+              
+              {/* 头像区域 */}
               <div className="relative w-full aspect-square border-2 border-white/10 p-2 group">
                  <div className="absolute inset-0 bg-endfield-accent/5 group-hover:bg-endfield-accent/10 transition-colors" />
                  <div className="absolute w-full h-1 bg-endfield-accent/50 top-0 left-0 animate-[scan_3s_linear_infinite] opacity-50" />
@@ -58,24 +56,44 @@ export default async function AboutPage() {
                  </div>
               </div>
 
-              <div className="space-y-4">
+              {/* 基础信息区域 */}
+              <div className="space-y-6">
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">CODENAME</label>
                    <div className="text-3xl font-bold uppercase tracking-wider">{aboutData.blogger}</div>
                  </div>
+                 
+                 {/* 1. 还原 Affiliation 布局 */}
                  <div>
-                   <label className="text-[10px] text-endfield-dim font-mono block mb-1">AFFILIATION</label>
-                   <div className="flex items-center gap-2">
-                     <div className="w-2 h-2 bg-endfield-accent rounded-full animate-pulse" />
-                     <span className="text-sm font-bold">{aboutData.siteName}</span>
+                   <label className="text-[10px] text-endfield-dim font-mono block mb-2">AFFILIATION</label>
+                   <div className="text-lg font-bold flex items-center gap-2">
+                      <span className="w-1.5 h-4 bg-endfield-accent"></span>
+                      {aboutData.siteName}
                    </div>
                  </div>
+
+                 {/* Role */}
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">ROLE</label>
                    <div className="text-sm font-mono text-gray-300 border border-white/10 px-3 py-2 bg-white/5">
                      {aboutData.role}
                    </div>
                  </div>
+
+                 {/* === 2. 修改点：Logo 移至此处 === */}
+                 {aboutData.logo && (
+                   <div>
+                     {/* 去掉了 padding (p-2) 和 背景色 (bg-black/50)，只保留一个极淡的边框定位 */}
+                     <div className="w-20 h-20 border border-white/5 flex items-center justify-center">
+                       <img 
+                         src={aboutData.logo} 
+                         alt="Affiliation Logo" 
+                         className="w-full h-full object-contain" // 确保图片保持比例且不被裁切
+                       />
+                     </div>
+                   </div>
+                 )}
+                 {/* ================================== */}
               </div>
 
               <div className="mt-auto pt-6">
@@ -89,7 +107,7 @@ export default async function AboutPage() {
               </div>
            </div>
 
-           {/* 右侧：详细介绍与技术栈 */}
+           {/* 右侧栏 */}
            <div className="lg:col-span-8 flex flex-col gap-10">
               <div>
                  <h3 className="text-lg font-bold text-endfield-accent mb-4 flex items-center gap-2">
@@ -110,7 +128,6 @@ export default async function AboutPage() {
                    // SYSTEM_MODULES
                  </h3>
                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {/* 使用新组件 */}
                     {aboutData.stack.map(tech => (
                       <TechModule key={tech} tech={tech} />
                     ))}
@@ -123,8 +140,7 @@ export default async function AboutPage() {
               </div>
            </div>
         </div>
-
-        {/* 评论区 */}
+        
         <div className="mt-12 max-w-4xl mx-auto">
            <Comments config={giscusConfig} />
         </div>
