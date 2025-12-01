@@ -1,8 +1,8 @@
 [
     {
     "id": "LINK_001",
-    "blogger": "禾守の小站",
-    "siteName": "禾守",
+    "blogger": "禾守",
+    "siteName": "禾守の小站",
     "logo": "https://sway-cdn.com/s/wl1r2oqIuZtCtQbJ/images/9ecO8UCSDAkWDf",
     "email": "",
     "description": "这里是一只萌新的博客~",
@@ -15,18 +15,32 @@
       "TypeScript"
     ]
   },
-  {
-    "id": "LINK_003",
-    "blogger": "Next.js",
-    "siteName": "Next.js Official",
-    "logo": "https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_light_background.png",
-    "email": "support@vercel.com",
-    "description": "The React Framework for the Web. 测试自动截图功能。",
-    "url": "https://nextjs.org",
+      {
+    "id": "LINK_002",
+    "blogger": "龙星划空",
+    "siteName": "龙星划空",
+    "logo": "https://blog.245179.xyz/images/atiq.png",
+    "email": "",
+    "description": "人生近看是悲剧，远看是喜剧",
+    "url": "https://blog.245179.xyz/",
     "stack": [
-      "React",
-      "Vercel",
-      "Tailwind"
+      "Hexo",
+      "Hugo",
+      "Git"
+    ]
+  },
+        {
+    "id": "LINK_003",
+    "blogger": "寒寒",
+    "siteName": "寒寒的博客",
+    "logo": "https://alikia2x.com/img/avatar.png",
+    "email": "",
+    "description": "技术菜菜，梦想大大",
+    "url": "hhttps://blog.alikia2x.com/",
+    "stack": [
+      "Hugo",
+      "Go",
+      "React"
     ]
   },
   {
