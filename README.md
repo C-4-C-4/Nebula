@@ -81,7 +81,6 @@
 
 ### 第四步：部署 (Deploy)
 *   **Vercel**: 连接你的 GitHub 仓库，填好环境变量，点击 Deploy。
-*   **Cloudflare Pages**: 需要在后台页面的代码头部添加 `export const runtime = 'edge';` (已在最新版代码中适配)。
 
 ---
 
