@@ -88,23 +88,6 @@
     ]
   },
   {
-    "id": "LINK_000",
-    "siteName": "github",
-    "blogger": "github",
-    "url": "https://github.com/",
-    "logo": "",
-    "email": "support@github.com",
-    "description": "github",
-    "stack": [
-      "Frontend",
-      "Microservices",
-      "Go",
-      "C/C++",
-      "React",
-      "MySQL"
-    ]
-  },
-  {
     "id": "LINK_007",
     "siteName": "雪萌天文台",
     "blogger": "Muika",
@@ -120,11 +103,11 @@
     ]
   },
   {
-    "id": "LINK_266",
+    "id": "LINK_008",
     "siteName": "Almango' Blog",
     "blogger": "Almango",
     "url": "https://blog.almango.cn/",
-    "logo": "https://blog.almango.cn/avatar.png",
+    "logo": "https://blog.almango.cn/img/favicon.png",
     "snapshot": "",
     "email": "",
     "description": "天真永不消逝，浪漫至死不渝",
@@ -135,7 +118,7 @@
     ]
   },
   {
-    "id": "LINK_554",
+    "id": "LINK_009",
     "siteName": "ATao-Blog",
     "blogger": "ATao",
     "url": "https://blog.atao.cyou/",
