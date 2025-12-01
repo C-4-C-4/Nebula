@@ -1,15 +1,15 @@
 {
-  "siteTitle": "Endfield Blog System",
-  "logoText": "ENDFIELD.SYS",
-  "heroTitleLine1": "SYSTEM",
-  "heroTitleLine2": "OVERRIDE",
-  "copyright": "2024 Endfield Industries. All Rights Reserved.",
-  "icp": "京ICP备00000000号-1",
-  "police": "京公网安备00000000号",
+  "siteTitle": "Nebula Blog ",
+  "logoText": "Nebula.SYS",
+  "heroTitleLine1": "Nebula",
+  "heroTitleLine2": "Blog",
+  "copyright": "2025 CCCC4444 All Rights Reserved.",
+  "icp": "",
+  "police": "",
   "giscusConfig": {
     "repo": "C-4-C-4/Nebula",
     "repoId": "R_kgDOQfc2Tw",
-    "category": "General", 
-    "categoryId": "DIC_kwDOQfc2T84CzP14" 
+    "category": "General",
+    "categoryId": "DIC_kwDOQfc2T84CzP14"
   }
 }
