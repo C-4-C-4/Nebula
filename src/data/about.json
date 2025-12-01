@@ -1,11 +1,11 @@
 {
-  "siteName": "ENDFIELD.SYS",
-  "logo": "https://placehold.co/150x150/FCEE21/000/png?text=E.I.",
-  "blogger": "Administrator",
-  "avatar": "https://placehold.co/400x400/18181b/FCEE21/png?text=OP",
-  "role": "Lead Developer / Operator",
-  "description": "驻扎在塔卫二的技术人员。热衷于构建高可用性的前端系统与交互体验。\n正在探索源石技术与旧时代代码的兼容性方案。\n\n目前主要活跃于工业区第4扇区，负责维护基地通信网络。",
-  "email": "contact@endfield.com",
+  "siteName": "Nebula.SYS",
+  "logo": "https://img.scdn.io/i/692d850818b15_1764590856.webp",
+  "blogger": "CCCC4444",
+  "avatar": "https://img.scdn.io/i/692d847f79589_1764590719.webp",
+  "role": "Nebula.SYS / Operator",
+  "description": "                              Nebula.SYS 项目开发\r\n坐标位置：可观测宇宙 → 拉尼亚凯亚超星系团 → 室女超星系团 → 本星系群 → 银河系 → 太阳系 → 地球 → 中华人民共和国 → 你猜在哪 :)\r\n\r\n名称：CCCC4444\r\n\r\n性别：你猜\r\n\r\n联系邮箱：slxz3238@gmail.com\r\n\r\n爱好：睡觉\r\n\r\n喜欢的颜色：蓝粉白",
+  "email": "slxz3238@gmail.com",
   "stack": [
     "Next.js",
     "React",
