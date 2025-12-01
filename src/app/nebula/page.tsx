@@ -1,10 +1,11 @@
 import { getSortedPostsData } from "@/lib/posts";
 import friendsData from "@/data/friends.json";
 import Link from "next/link";
-import NebulaContainer from "@/components/NebulaContainer"; // 引入刚才创建的中间组件
+import NebulaContainer from "@/components/NebulaContainer"; 
+import NebulaTerminal from "@/components/NebulaTerminal"; // 引入终端组件
 
 export default function NebulaPage() {
-  // 1. 数据获取逻辑 (在服务端运行)
+  // 1. 获取并格式化文章数据
   const posts = getSortedPostsData().map(post => ({
     id: `post-${post.id}`,
     label: post.title,
@@ -13,6 +14,7 @@ export default function NebulaPage() {
     date: post.date
   }));
 
+  // 2. 获取并格式化友链数据
   const friends = friendsData.map(friend => ({
     id: `friend-${friend.id}`,
     label: friend.siteName,
@@ -21,22 +23,22 @@ export default function NebulaPage() {
     date: "LINK"
   }));
 
+  // 3. 合并所有节点数据
   const allNodes = [...posts, ...friends];
 
   return (
-    // CSS 保持不变，确保满屏
+    // 强制全屏容器，防止 Canvas 高度塌陷
     <div className="fixed inset-0 w-screen h-screen bg-black z-50 overflow-hidden">
       
-      {/* 2. 3D 场景容器 */}
+      {/* === Layer 1: 3D 场景 (底层) === */}
       <div className="absolute inset-0 z-0">
-        {/* 将数据传给客户端组件 */}
         <NebulaContainer nodes={allNodes} />
       </div>
 
-      {/* 3. UI 覆盖层 (HUD) */}
+      {/* === Layer 2: UI 覆盖层 (顶层 HUD) === */}
       <div className="absolute top-0 left-0 w-full h-full z-10 pointer-events-none p-8 flex flex-col justify-between">
         
-        {/* 顶部标题栏 */}
+        {/* --- 顶部标题栏 --- */}
         <div className="flex justify-between items-start pointer-events-auto">
           <div>
             <h1 className="text-4xl font-bold text-white uppercase tracking-tighter">
@@ -52,16 +54,27 @@ export default function NebulaPage() {
           </Link>
         </div>
 
-        {/* 底部图例 */}
-        <div className="flex gap-6 pointer-events-auto">
-           <div className="flex items-center gap-2">
-             <div className="w-3 h-3 bg-[#FCEE21] rounded-sm" />
-             <span className="text-xs font-mono text-gray-300">DATA_LOGS (POSTS)</span>
+        {/* --- 底部区域 --- */}
+        <div className="relative w-full flex justify-center items-end">
+           
+           {/* 1. 终端输入框 (居中显示) */}
+           {/* pointer-events-auto 确保输入框可以点击和输入 */}
+           <div className="pointer-events-auto w-full max-w-2xl z-20">
+              <NebulaTerminal nodes={allNodes} />
            </div>
-           <div className="flex items-center gap-2">
-             <div className="w-3 h-3 bg-[#00F0FF] rounded-sm" />
-             <span className="text-xs font-mono text-gray-300">EXTERNAL_LINKS (FRIENDS)</span>
+
+           {/* 2. 图例说明 (移至右下角，避免遮挡终端) */}
+           <div className="absolute right-0 bottom-0 flex flex-col gap-2 items-end pointer-events-auto pb-1 hidden md:flex">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-gray-500">POSTS</span>
+                <div className="w-2 h-2 bg-[#FCEE21] rounded-sm" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono text-gray-500">FRIENDS</span>
+                <div className="w-2 h-2 bg-[#00F0FF] rounded-sm" />
+              </div>
            </div>
+
         </div>
 
       </div>

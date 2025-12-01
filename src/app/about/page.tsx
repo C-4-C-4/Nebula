@@ -49,7 +49,9 @@ export default async function AboutPage() {
                  <img 
                    src={aboutData.avatar} 
                    alt="Avatar" 
-                   className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+                   // === 修改 1：移除了 grayscale 和 group-hover:grayscale-0 ===
+                   // 现在头像默认就是彩色的
+                   className="w-full h-full object-cover transition-all duration-500"
                  />
                  <div className="absolute bottom-4 right-4 text-[10px] font-mono text-endfield-accent bg-black/80 px-2 py-1">
                    IMG_SOURCE_RAW
@@ -63,7 +65,6 @@ export default async function AboutPage() {
                    <div className="text-3xl font-bold uppercase tracking-wider">{aboutData.blogger}</div>
                  </div>
                  
-                 {/* 1. 还原 Affiliation 布局 */}
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-2">AFFILIATION</label>
                    <div className="text-lg font-bold flex items-center gap-2">
@@ -72,7 +73,6 @@ export default async function AboutPage() {
                    </div>
                  </div>
 
-                 {/* Role */}
                  <div>
                    <label className="text-[10px] text-endfield-dim font-mono block mb-1">ROLE</label>
                    <div className="text-sm font-mono text-gray-300 border border-white/10 px-3 py-2 bg-white/5">
@@ -80,15 +80,21 @@ export default async function AboutPage() {
                    </div>
                  </div>
 
-                 {/* === 2. 修改点：Logo 移至此处 === */}
+                 {/* === 修改 2：Logo 放大并居中 === */}
                  {aboutData.logo && (
-                   <div>
-                     {/* 去掉了 padding (p-2) 和 背景色 (bg-black/50)，只保留一个极淡的边框定位 */}
-                     <div className="w-20 h-20 border border-white/5 flex items-center justify-center">
+                   <div className="mt-2">
+                     <label className="text-[10px] text-endfield-dim font-mono block mb-2">ORGANIZATION_LOGO</label>
+                     {/* 
+                        w-full: 占满这一列的宽度
+                        h-48: 增加高度 (约192px)
+                        flex justify-center items-center: 确保图片在框内居中
+                        bg-black/40: 加深背景
+                     */}
+                     <div className="w-full h-48 border border-white/10 bg-black/40 p-4 flex items-center justify-center">
                        <img 
                          src={aboutData.logo} 
                          alt="Affiliation Logo" 
-                         className="w-full h-full object-contain" // 确保图片保持比例且不被裁切
+                         className="w-full h-full object-contain" // 保持比例适应框大小
                        />
                      </div>
                    </div>

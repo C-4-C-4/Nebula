@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-// 1. 删除 next/font/google 的引用
-// 2. 引入本地字体包的 CSS
+// 引入本地字体包
 import "@fontsource/oswald";
 import "@fontsource/jetbrains-mono";
 
@@ -9,12 +8,24 @@ import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar"; 
 import { fetchJsonData } from "@/lib/github"; 
 
+// 1. 动态生成 Metadata (标题 + Favicon)
 export async function generateMetadata(): Promise<Metadata> {
   const file = await fetchJsonData("config.json");
-  const title = file?.data?.siteTitle || "Endfield Blog System";
+  const data = file?.data || {};
+  
+  const title = data.siteTitle || "Endfield Blog System";
+  // 如果后台没填，默认回退到 Next.js 自带的 /favicon.ico (你需要确保 public 文件夹里有这个文件)
+  const favicon = data.favicon || "/favicon.ico";
+
   return {
     title: title,
     description: "Industrial Techwear Style Blog",
+    // === 关键新增 ===
+    icons: {
+      icon: favicon,
+      shortcut: favicon,
+      apple: favicon, // 顺便适配苹果设备
+    },
   };
 }
 
@@ -28,10 +39,6 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      {/* 
-         3. 移除了 className 中的变量名 (如 variable-oswald)
-         因为我们现在直接在 tailwind.config.ts 里指定字体名称，不再依赖 CSS 变量 
-      */}
       <body className="font-sans antialiased flex flex-col min-h-screen">
         <div className="noise-bg" />
         

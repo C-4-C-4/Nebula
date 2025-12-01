@@ -1,6 +1,7 @@
 import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
 import Navbar from "@/components/Navbar";
+import { redirect } from "next/navigation"; // 1. 引入重定向方法
 
 async function saveConfigAction(formData: FormData) {
   "use server";
@@ -10,6 +11,7 @@ async function saveConfigAction(formData: FormData) {
     // 全局设置
     siteTitle: formData.get("siteTitle"),
     logoText: formData.get("logoText"),
+    favicon: formData.get("favicon"),
     
     // 首页大图文字
     heroTitleLine1: formData.get("heroTitleLine1"),
@@ -32,15 +34,19 @@ async function saveConfigAction(formData: FormData) {
   await saveJsonData("config.json", newConfig, sha);
   // 刷新全站布局
   revalidatePath("/", "layout"); 
+
+  // === 2. 保存成功后跳转回后台首页 ===
+  redirect("/admin");
 }
 
 export default async function AdminConfigPage() {
   const file = await fetchJsonData("config.json");
   
-  // 默认值兜底，防止首次加载报错
+  // 默认值兜底
   const data = file?.data || { 
     siteTitle: "Endfield Blog", 
     logoText: "ENDFIELD.SYS",
+    favicon: "",
     heroTitleLine1: "SYSTEM",
     heroTitleLine2: "OVERRIDE",
     copyright: "", icp: "", police: "" 
@@ -63,6 +69,17 @@ export default async function AdminConfigPage() {
           {/* === 1. 全局设置 === */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-gray-500 border-l-2 border-endfield-accent pl-2">GLOBAL_SETTINGS</h3>
+            
+            <div className="group">
+               <label className="block text-[10px] text-endfield-accent mb-1">BROWSER_TAB_ICON (Favicon URL)</label>
+               <input 
+                 name="favicon" 
+                 defaultValue={data.favicon} 
+                 className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300"
+                 placeholder="e.g. https://example.com/icon.png"
+               />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="group">
                 <label className="block text-[10px] text-endfield-accent mb-1">BROWSER_TAB_TITLE</label>
@@ -111,9 +128,6 @@ export default async function AdminConfigPage() {
                  <input name="gCategoryId" defaultValue={giscus.categoryId} className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none font-mono text-gray-300"/>
                </div>
             </div>
-            <p className="text-[10px] text-gray-600">
-              * Configure these at <a href="https://giscus.app" target="_blank" className="text-endfield-accent underline">giscus.app</a>
-            </p>
           </div>
 
           {/* === 4. 页脚信息 === */}
