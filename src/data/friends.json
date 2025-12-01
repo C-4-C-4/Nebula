@@ -114,7 +114,9 @@
     "email": "i@snowy.moe",
     "description": "发现巷子里的那颗星星",
     "stack": [
-      "Astro，Vue，React"
+      "Astro",
+      "Vue",
+      "React"
     ]
   }
 ]
