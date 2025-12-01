@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
+export const runtime = 'edge';
+
 async function saveFriendAction(formData: FormData) {
   "use server";
   const targetId = formData.get("targetId") as string; // URL中的ID，如果是 'new' 表示新增

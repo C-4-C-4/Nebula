@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
+export const runtime = 'edge';
+
 // Server Action
 async function saveAction(formData: FormData) {
   "use server";

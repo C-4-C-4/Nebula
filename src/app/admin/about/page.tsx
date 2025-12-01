@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation"; // 确保引入了 redirect
 import Navbar from "@/components/Navbar";
 
+export const runtime = 'edge';
+
 async function saveAboutAction(formData: FormData) {
   "use server";
   const sha = formData.get("sha") as string;

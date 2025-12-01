@@ -7,6 +7,8 @@ import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import AdminLogout from "@/components/AdminLogout";
 
+export const runtime = 'edge';
+
 async function deleteAction(formData: FormData) {
   "use server";
   const slug = formData.get("slug") as string;

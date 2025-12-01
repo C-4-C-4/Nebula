@@ -3,6 +3,8 @@ import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
 import Navbar from "@/components/Navbar";
 
+export const runtime = 'edge';
+
 async function deleteFriendAction(formData: FormData) {
   "use server";
   const idToDelete = formData.get("id") as string;

@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache";
 import Navbar from "@/components/Navbar";
 import { redirect } from "next/navigation"; // 1. 引入重定向方法
 
+export const runtime = 'edge';
+
 async function saveConfigAction(formData: FormData) {
   "use server";
   const sha = formData.get("sha") as string;
