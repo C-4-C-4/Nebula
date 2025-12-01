@@ -2,8 +2,9 @@ import MatrixBackground from "@/components/MatrixBackground";
 import aboutData from "@/data/about.json";
 import Comments from "@/components/Comments"; 
 import { fetchJsonData } from "@/lib/github";
-import Navbar from "@/components/Navbar";
 import TechModule from "@/components/TechModule";
+// 1. 删除 Navbar 的引入
+// import Navbar from "@/components/Navbar"; 
 
 export default async function AboutPage() {
   const file = await fetchJsonData("config.json");
@@ -13,7 +14,9 @@ export default async function AboutPage() {
     <main className="min-h-screen relative text-white selection:bg-endfield-accent selection:text-black">
       <MatrixBackground />
       <div className="fixed inset-0 bg-gradient-to-t from-endfield-base via-transparent to-transparent pointer-events-none z-0" />
-      <Navbar />
+      
+      {/* 2. 删除这里的 <Navbar /> 组件 */}
+      {/* <Navbar /> */}
 
       <div className="max-w-6xl mx-auto px-6 pt-32 pb-20 relative z-10">
         
@@ -49,8 +52,6 @@ export default async function AboutPage() {
                  <img 
                    src={aboutData.avatar} 
                    alt="Avatar" 
-                   // === 修改 1：移除了 grayscale 和 group-hover:grayscale-0 ===
-                   // 现在头像默认就是彩色的
                    className="w-full h-full object-cover transition-all duration-500"
                  />
                  <div className="absolute bottom-4 right-4 text-[10px] font-mono text-endfield-accent bg-black/80 px-2 py-1">
@@ -80,26 +81,19 @@ export default async function AboutPage() {
                    </div>
                  </div>
 
-                 {/* === 修改 2：Logo 放大并居中 === */}
+                 {/* Logo 展示块 */}
                  {aboutData.logo && (
                    <div className="mt-2">
                      <label className="text-[10px] text-endfield-dim font-mono block mb-2">ORGANIZATION_LOGO</label>
-                     {/* 
-                        w-full: 占满这一列的宽度
-                        h-48: 增加高度 (约192px)
-                        flex justify-center items-center: 确保图片在框内居中
-                        bg-black/40: 加深背景
-                     */}
                      <div className="w-full h-48 border border-white/10 bg-black/40 p-4 flex items-center justify-center">
                        <img 
                          src={aboutData.logo} 
                          alt="Affiliation Logo" 
-                         className="w-full h-full object-contain" // 保持比例适应框大小
+                         className="w-full h-full object-contain" 
                        />
                      </div>
                    </div>
                  )}
-                 {/* ================================== */}
               </div>
 
               <div className="mt-auto pt-6">
