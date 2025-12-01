@@ -1,31 +1,18 @@
 [
-  {
+    {
     "id": "LINK_001",
-    "blogger": "Kal'tsit",
-    "siteName": "Rhodes Island Intranet",
-    "logo": "",
-    "email": "kaltsit@rhodesisland.com",
-    "description": "罗德岛制药公司内部网络入口。仅限授权人员访问，违者将被强制清除记忆。",
-    "url": "https://ak.hypergryph.com",
+    "blogger": "禾守の小站",
+    "siteName": "禾守",
+    "logo": "https://sway-cdn.com/s/wl1r2oqIuZtCtQbJ/images/9ecO8UCSDAkWDf",
+    "email": "",
+    "description": "这里是一只萌新的博客~",
+    "url": "https://blog.dmoe.top",
     "stack": [
+      "Valaxy",
       "Vue",
-      "Nuxt.js",
-      "WebGL"
-    ]
-  },
-  {
-    "id": "LINK_002",
-    "blogger": "Perlica",
-    "siteName": "Endfield Industries",
-    "logo": "",
-    "email": "admin@endfield.com",
-    "description": "终末地工业官方站点。开拓、建设、生存。塔卫二环境数据实时监控中。",
-    "url": "https://endfield.hypergryph.com",
-    "stack": [
-      "React",
-      "Three.js",
-      "GSAP",
-      "Next.js"
+      "Vite",
+      "UnoCSS",
+      "TypeScript"
     ]
   },
   {
@@ -48,8 +35,15 @@
     "blogger": "github",
     "url": "https://github.com/",
     "logo": "",
-    "email": "",
+    "email": "support@github.com",
     "description": "github",
-    "stack": []
+    "stack": [
+      "Frontend",
+      "Microservices",
+      "Go",
+      "C/C++",
+      "React",
+      "MySQL"
+    ]
   }
 ]
