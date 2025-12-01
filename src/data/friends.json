@@ -118,5 +118,20 @@
       "Vue",
       "React"
     ]
+  },
+  {
+    "id": "LINK_266",
+    "siteName": "Almango' Blog",
+    "blogger": "Almango",
+    "url": "https://blog.almango.cn/",
+    "logo": "https://blog.almango.cn/avatar.png",
+    "snapshot": "",
+    "email": "",
+    "description": "天真永不消逝，浪漫至死不渝",
+    "stack": [
+      "Astro",
+      "Node.js",
+      "TypeScript"
+    ]
   }
 ]
