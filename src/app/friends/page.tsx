@@ -19,7 +19,6 @@ export default async function FriendsPage() {
 
       <div className="max-w-7xl mx-auto px-6 pt-32 pb-20 relative z-10">
         
-        {/* 页面头部 */}
         <div className="mb-12 border-l-4 border-endfield-accent pl-6 py-2">
            <h1 className="text-4xl md:text-6xl font-bold uppercase mb-2">
              Link_<span className="text-endfield-accent">Connection</span>
@@ -30,9 +29,9 @@ export default async function FriendsPage() {
            </p>
         </div>
 
-        {/* 申请友链说明区域 */}
-        {/* mb-8 是下边距，我们下面会用负边距抵消它 */}
-        <div className="border border-white/10 bg-black/40 p-8 relative overflow-hidden mb-8">
+        {/* 申请区域 */}
+        {/* 修复点 1：给这个容器加上 z-30，比箭头的 z-20 高，确保按钮可点击 */}
+        <div className="border border-white/10 bg-black/40 p-8 relative overflow-hidden mb-8 z-30">
            <div className="absolute -right-4 -bottom-4 text-9xl font-bold text-white/5 pointer-events-none select-none">
              JOIN
            </div>
@@ -88,21 +87,17 @@ export default async function FriendsPage() {
            </div>
         </div>
 
-        {/* === 修改点：增加负边距容器 === */}
-        {/* -mt-24 (约-96px) 把箭头向上拉，抵消上一个 div 的 mb-8 和组件自身的 padding */}
+        {/* 修复点 2：保持 z-20，低于上面的 z-30 */}
         <div className="-mt-24 relative z-20">
            <ScrollGuide />
         </div>
-        {/* =========================== */}
 
-        {/* 友链列表网格 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
            {friendsData.map((friend, idx) => (
              <FriendCard key={friend.id} data={friend} index={idx} />
            ))}
         </div>
 
-        {/* 评论区 */}
         <div id="comments-section" className="max-w-4xl mx-auto scroll-mt-24">
           <Comments config={giscusConfig} />
         </div>

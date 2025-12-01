@@ -7,6 +7,7 @@ interface Friend {
   blogger: string;
   siteName: string;
   logo?: string;
+  snapshot?: string; // 新增字段
   email: string;
   description: string;
   url: string;
@@ -37,18 +38,27 @@ const getIconSlug = (name: string) => {
   return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
 };
 
+// === 修复问题 3：技术栈图标逻辑 ===
 const TechTag = ({ tech }: { tech: string }) => {
   const [isError, setIsError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false); // 新增加载状态
   const iconSlug = getIconSlug(tech);
   const iconUrl = `https://cdn.simpleicons.org/${iconSlug}/9ca3af`;
 
   return (
     <div className="flex items-center gap-1.5 border border-white/10 px-2 py-1 bg-white/5 hover:bg-white/10 hover:border-endfield-accent/50 transition-colors group/tag h-6">
+      {/* 
+         逻辑修改：
+         1. 始终渲染 img 标签以触发加载，但默认隐藏 (hidden)。
+         2. 只有当 onLoad 触发且没有 Error 时，才移除 hidden 类显示出来。
+         3. 这样初始状态和错误状态都不会占据空间。
+      */}
       {!isError && (
         <img 
           src={iconUrl} 
           alt="" 
-          className="w-3 h-3 opacity-70 group-hover/tag:opacity-100 transition-opacity"
+          className={`w-3 h-3 opacity-70 group-hover/tag:opacity-100 transition-opacity ${isLoaded ? '' : 'hidden'}`}
+          onLoad={() => setIsLoaded(true)}
           onError={() => setIsError(true)} 
         />
       )}
@@ -62,85 +72,56 @@ const TechTag = ({ tech }: { tech: string }) => {
 export default function FriendCard({ data, index }: { data: Friend; index: number }) {
   const FALLBACK_IMAGE = "https://placehold.co/600x340/09090b/333/png?text=NO_SIGNAL";
 
-  // === Logo 逻辑开始 ===
-  
-  // 1. 计算兜底的首字母占位图
+  // === Logo 逻辑 (保持之前的优化) ===
   const placeholderLogo = `https://placehold.co/128x128/000/FFF?text=${data.siteName.charAt(0)}`;
-  
-  // 2. 初始化状态
-  // 为了避免服务端水合错误，初始值先给 placeholder 或 manual config
-  // 真实的缓存读取放在 useEffect 里
   const [logoSrc, setLogoSrc] = useState<string>(
     (data.logo && data.logo.trim() !== "") ? data.logo : placeholderLogo
   );
-  
   const [logoAttempt, setLogoAttempt] = useState(0);
-  const [isUsingCache, setIsUsingCache] = useState(false); // 标记是否正在使用缓存
+  const [isUsingCache, setIsUsingCache] = useState(false);
 
-  const getDomain = (url: string) => {
-    try { return new URL(url).hostname; } catch { return ""; }
-  };
-
-  // 3. 核心逻辑：加载 Logo
   useEffect(() => {
-    // A. 如果有手动配置，直接结束
     if (data.logo && data.logo.trim() !== "") return;
-
-    // B. 尝试读取本地缓存
     const cacheKey = `favicon_url_${data.url}`;
     const cachedUrl = localStorage.getItem(cacheKey);
-
     if (cachedUrl) {
       setLogoSrc(cachedUrl);
-      setIsUsingCache(true); // 标记命中缓存，不再进行 API 轮询
+      setIsUsingCache(true);
       return;
     }
-
-    // C. 如果没有缓存，开始 API 轮询逻辑
-    const domain = getDomain(data.url);
-    if (!domain) return;
-
-    const providers = [
-      `https://api.iowen.cn/favicon/${domain}.png`,
-      `https://api.uomg.com/api/get.favicon?url=${data.url}`,
-      `https://favicon.im/${domain}`,
-      placeholderLogo
-    ];
-
-    if (logoAttempt < providers.length) {
-       setLogoSrc(providers[logoAttempt]);
-    }
+    try {
+      const domain = new URL(data.url).hostname;
+      const providers = [
+        `https://api.iowen.cn/favicon/${domain}.png`,
+        `https://api.uomg.com/api/get.favicon?url=${data.url}`,
+        `https://favicon.im/${domain}`,
+        placeholderLogo
+      ];
+      if (logoAttempt < providers.length) setLogoSrc(providers[logoAttempt]);
+    } catch {}
   }, [data.url, data.logo, logoAttempt, placeholderLogo]);
 
-  // 4. 错误处理
   const handleLogoError = () => {
-    // 如果当前正在使用缓存的 URL 报错了（比如缓存的图片过期了），则清除缓存，并从头开始尝试
     if (isUsingCache) {
       localStorage.removeItem(`favicon_url_${data.url}`);
       setIsUsingCache(false);
-      setLogoAttempt(0); // 重置尝试次数
+      setLogoAttempt(0);
       return;
     }
-
-    // 正常轮询失败，尝试下一个
-    if (logoAttempt < 3) {
-      setLogoAttempt(prev => prev + 1);
-    }
+    if (logoAttempt < 3) setLogoAttempt(prev => prev + 1);
   };
 
-  // 5. 成功处理：缓存有效的 URL
   const handleLogoLoad = () => {
-    // 如果是手动配置的或者是默认占位图，不缓存
     if ((data.logo && data.logo.trim() !== "") || logoSrc === placeholderLogo) return;
-    
-    // 缓存当前成功的 URL
     localStorage.setItem(`favicon_url_${data.url}`, logoSrc);
   };
-  // === Logo 逻辑结束 ===
 
-
-  // === 快照逻辑 (保持不变) ===
-  const snapshotUrl = useMemo(() => {
+  // === 修复问题 2：快照逻辑 (优先使用自定义 snapshot) ===
+  const autoSnapshotUrl = useMemo(() => {
+    // 如果有自定义快照，直接忽略自动生成的 URL
+    if (data.snapshot && data.snapshot.trim() !== "") {
+      return data.snapshot;
+    }
     const today = new Date().toISOString().split('T')[0];
     const params = new URLSearchParams({
       url: data.url,
@@ -153,19 +134,30 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       v: today 
     });
     return `https://api.microlink.io/?${params.toString()}`;
-  }, [data.url]);
+  }, [data.url, data.snapshot]);
 
-  const [imgSrc, setImgSrc] = useState(snapshotUrl);
+  // 初始值：如果有自定义快照，直接用；否则用自动生成的
+  const [imgSrc, setImgSrc] = useState(
+    (data.snapshot && data.snapshot.trim() !== "") ? data.snapshot : autoSnapshotUrl
+  );
+  
   const [isLoading, setIsLoading] = useState(true);
 
+  // 只有在使用自动快照时，才去检查缓存
   useEffect(() => {
-    const isCached = localStorage.getItem(`snap_cached_${snapshotUrl}`);
+    if (data.snapshot && data.snapshot.trim() !== "") {
+      setIsLoading(false); // 自定义图片直接显示（或者你可以加个简单的 onLoad）
+      return;
+    }
+    const isCached = localStorage.getItem(`snap_cached_${autoSnapshotUrl}`);
     if (isCached === "true") setIsLoading(false);
-  }, [snapshotUrl]);
+  }, [autoSnapshotUrl, data.snapshot]);
 
   const handleSnapshotLoad = () => {
     setIsLoading(false);
-    localStorage.setItem(`snap_cached_${snapshotUrl}`, "true");
+    if (!data.snapshot) {
+      localStorage.setItem(`snap_cached_${autoSnapshotUrl}`, "true");
+    }
   };
 
   return (
@@ -175,7 +167,6 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       transition={{ delay: index * 0.1 }}
       className="group relative bg-endfield-surface border border-white/10 hover:border-endfield-accent transition-colors duration-300 flex flex-col h-full"
     >
-      {/* 快照区域 */}
       <div className="relative h-40 w-full overflow-hidden border-b border-white/10 bg-black">
         <div className="data-scan-overlay" />
         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
@@ -204,16 +195,14 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
         </div>
       </div>
 
-      {/* 信息区域 */}
       <div className="p-5 flex-1 flex flex-col relative">
         <div className="absolute -top-6 right-4 w-12 h-12 bg-[#09090b] border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20 shadow-lg">
-           {/* Logo 图片 */}
            <img 
              src={logoSrc} 
              alt="logo" 
              className="w-full h-full object-contain rounded-sm" 
              onError={handleLogoError} 
-             onLoad={handleLogoLoad} // 绑定成功回调，写入缓存
+             onLoad={handleLogoLoad}
            />
         </div>
 

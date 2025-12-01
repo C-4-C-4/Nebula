@@ -3,42 +3,35 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
-export const runtime = 'edge';
-
 async function saveFriendAction(formData: FormData) {
   "use server";
-  const targetId = formData.get("targetId") as string; // URL中的ID，如果是 'new' 表示新增
-  
-  // 1. 读取当前数据
+  const targetId = formData.get("targetId") as string;
   const file = await fetchJsonData("friends.json");
-  if (!file) return; // Error handling needed
+  if (!file) return;
 
   let friends = (file.data || []) as any[];
 
-  // 2. 构造新对象
   const newFriend = {
     id: formData.get("id") as string,
     siteName: formData.get("siteName"),
     blogger: formData.get("blogger"),
     url: formData.get("url"),
     logo: formData.get("logo"),
+    snapshot: formData.get("snapshot"), // === 新增字段 ===
     email: formData.get("email"),
     description: formData.get("description"),
     stack: (formData.get("stack") as string).split(",").map(s => s.trim()).filter(s => s)
   };
 
   if (targetId === "new") {
-    // 新增：追加到数组
     friends.push(newFriend);
   } else {
-    // 修改：找到索引并替换
     const index = friends.findIndex(f => f.id === targetId);
     if (index !== -1) {
       friends[index] = newFriend;
     }
   }
 
-  // 3. 保存
   await saveJsonData("friends.json", friends, file.sha);
   revalidatePath("/friends");
   revalidatePath("/admin/friends");
@@ -52,13 +45,13 @@ export default async function FriendEditorPage({ params }: { params: { id: strin
   const file = await fetchJsonData("friends.json");
   const friends = (file?.data || []) as any[];
   
-  // 如果是编辑模式，找到对应的数据；如果是新增，用默认空数据
   let friendData = {
-    id: `LINK_${Math.floor(Math.random() * 1000)}`, // 随机生成一个默认ID
+    id: `LINK_${Math.floor(Math.random() * 1000)}`,
     siteName: "",
     blogger: "",
     url: "",
     logo: "",
+    snapshot: "", // === 新增字段 ===
     email: "",
     description: "",
     stack: [] as string[]
@@ -116,6 +109,12 @@ export default async function FriendEditorPage({ params }: { params: { id: strin
                <label className="block text-[10px] text-gray-500 mb-1">EMAIL</label>
                <input name="email" defaultValue={friendData.email} className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none"/>
              </div>
+          </div>
+
+          {/* === 新增：快照设置 === */}
+          <div className="group">
+             <label className="block text-[10px] text-gray-500 mb-1">SNAPSHOT_URL (Optional, Leave empty for auto-generation)</label>
+             <input name="snapshot" defaultValue={friendData.snapshot} className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300" placeholder="e.g. https://example.com/cover.jpg"/>
           </div>
 
           <div className="group">
