@@ -1,5 +1,5 @@
 [
-    {
+  {
     "id": "LINK_001",
     "blogger": "禾守",
     "siteName": "禾守の小站",
@@ -15,7 +15,7 @@
       "TypeScript"
     ]
   },
-      {
+  {
     "id": "LINK_002",
     "blogger": "龙星划空",
     "siteName": "龙星划空",
@@ -29,7 +29,7 @@
       "Git"
     ]
   },
-        {
+  {
     "id": "LINK_003",
     "blogger": "布丁",
     "siteName": "布丁の小窝",
@@ -43,7 +43,7 @@
       "React"
     ]
   },
-          {
+  {
     "id": "LINK_004",
     "blogger": "Sakitami",
     "siteName": "Sakitami 的集装箱",
@@ -73,7 +73,7 @@
       "HTML"
     ]
   },
-    {
+  {
     "id": "LINK_006",
     "blogger": "中二蘑菇",
     "siteName": "中二病晚期の物語",
@@ -87,8 +87,6 @@
       "MySQL"
     ]
   },
-  
-  
   {
     "id": "LINK_000",
     "siteName": "github",
@@ -104,6 +102,19 @@
       "C/C++",
       "React",
       "MySQL"
+    ]
+  },
+  {
+    "id": "LINK_007",
+    "siteName": "雪萌天文台",
+    "blogger": "Muika",
+    "url": "https://blog.snowy.moe",
+    "logo": "https://img.snowy.moe/head.png",
+    "snapshot": "",
+    "email": "i@snowy.moe",
+    "description": "发现巷子里的那颗星星",
+    "stack": [
+      "Astro，Vue，React"
     ]
   }
 ]
