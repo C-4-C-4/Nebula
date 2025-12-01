@@ -1,7 +1,3 @@
-这是一个为您定制的 `README.md` 文档。你可以直接将其复制到你的项目根目录下。
-
----
-
 # 🌌 Project Nebula | Endfield Style Blog System
 
 ![Endfield Style](https://img.shields.io/badge/Style-Arknights%3A%20Endfield-FCEE21?style=for-the-badge&labelColor=000)
