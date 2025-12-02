@@ -130,5 +130,16 @@
       "Hexo",
       "Twikoo"
     ]
+  },
+  {
+    "id": "LINK_010",
+    "siteName": "竟何",
+    "blogger": "竟何",
+    "url": "https://lylelove.top",
+    "logo": "https://s2.loli.net/2021/12/04/8pQyDdjPbmZO5rv.png",
+    "snapshot": "",
+    "email": "",
+    "description": "写给你的长信",
+    "stack": []
   }
 ]
