@@ -7,7 +7,7 @@ interface Friend {
   blogger: string;
   siteName: string;
   logo?: string;
-  snapshot?: string; // 新增字段
+  snapshot?: string;
   email: string;
   description: string;
   url: string;
@@ -38,21 +38,15 @@ const getIconSlug = (name: string) => {
   return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
 };
 
-// === 修复问题 3：技术栈图标逻辑 ===
+// 技术标签组件
 const TechTag = ({ tech }: { tech: string }) => {
   const [isError, setIsError] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false); // 新增加载状态
+  const [isLoaded, setIsLoaded] = useState(false);
   const iconSlug = getIconSlug(tech);
   const iconUrl = `https://cdn.simpleicons.org/${iconSlug}/9ca3af`;
 
   return (
     <div className="flex items-center gap-1.5 border border-white/10 px-2 py-1 bg-white/5 hover:bg-white/10 hover:border-endfield-accent/50 transition-colors group/tag h-6">
-      {/* 
-         逻辑修改：
-         1. 始终渲染 img 标签以触发加载，但默认隐藏 (hidden)。
-         2. 只有当 onLoad 触发且没有 Error 时，才移除 hidden 类显示出来。
-         3. 这样初始状态和错误状态都不会占据空间。
-      */}
       {!isError && (
         <img 
           src={iconUrl} 
@@ -72,7 +66,7 @@ const TechTag = ({ tech }: { tech: string }) => {
 export default function FriendCard({ data, index }: { data: Friend; index: number }) {
   const FALLBACK_IMAGE = "https://placehold.co/600x340/09090b/333/png?text=NO_SIGNAL";
 
-  // === Logo 逻辑 (保持之前的优化) ===
+  // === 1. Logo 逻辑 ===
   const placeholderLogo = `https://placehold.co/128x128/000/FFF?text=${data.siteName.charAt(0)}`;
   const [logoSrc, setLogoSrc] = useState<string>(
     (data.logo && data.logo.trim() !== "") ? data.logo : placeholderLogo
@@ -116,12 +110,10 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
     localStorage.setItem(`favicon_url_${data.url}`, logoSrc);
   };
 
-  // === 修复问题 2：快照逻辑 (优先使用自定义 snapshot) ===
+  // === 2. 快照逻辑 ===
   const autoSnapshotUrl = useMemo(() => {
-    // 如果有自定义快照，直接忽略自动生成的 URL
-    if (data.snapshot && data.snapshot.trim() !== "") {
-      return data.snapshot;
-    }
+    if (data.snapshot && data.snapshot.trim() !== "") return data.snapshot;
+    
     const today = new Date().toISOString().split('T')[0];
     const params = new URLSearchParams({
       url: data.url,
@@ -136,17 +128,14 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
     return `https://api.microlink.io/?${params.toString()}`;
   }, [data.url, data.snapshot]);
 
-  // 初始值：如果有自定义快照，直接用；否则用自动生成的
   const [imgSrc, setImgSrc] = useState(
     (data.snapshot && data.snapshot.trim() !== "") ? data.snapshot : autoSnapshotUrl
   );
-  
   const [isLoading, setIsLoading] = useState(true);
 
-  // 只有在使用自动快照时，才去检查缓存
   useEffect(() => {
     if (data.snapshot && data.snapshot.trim() !== "") {
-      setIsLoading(false); // 自定义图片直接显示（或者你可以加个简单的 onLoad）
+      setIsLoading(false);
       return;
     }
     const isCached = localStorage.getItem(`snap_cached_${autoSnapshotUrl}`);
@@ -167,9 +156,17 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       transition={{ delay: index * 0.1 }}
       className="group relative bg-endfield-surface border border-white/10 hover:border-endfield-accent transition-colors duration-300 flex flex-col h-full"
     >
+      {/* 快照区域 */}
       <div className="relative h-40 w-full overflow-hidden border-b border-white/10 bg-black">
+        {/* 扫描线动画 */}
         <div className="data-scan-overlay" />
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
+        
+        {/* 
+           === 关键修复 ===
+           移除了所有的遮罩层 div (bg-black/20 等)。
+           现在这里只剩下图片本身和上面的扫描线。
+           这样鼠标移上去就不会有变亮的效果了。
+        */}
         
         <img 
           src={imgSrc} 
@@ -179,11 +176,12 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
             setImgSrc(FALLBACK_IMAGE);
             setIsLoading(false);
           }}
+          // 图片保持原样，仅保留缩放动画
           className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${isLoading ? 'blur-sm scale-110' : 'blur-0 scale-100'}`}
         />
 
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center z-0">
+          <div className="absolute inset-0 flex items-center justify-center z-0 pointer-events-none">
              <div className="text-[10px] font-mono text-endfield-dim animate-pulse">
                FETCHING_SNAPSHOT...
              </div>
@@ -195,6 +193,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
         </div>
       </div>
 
+      {/* 信息区域 */}
       <div className="p-5 flex-1 flex flex-col relative">
         <div className="absolute -top-6 right-4 w-12 h-12 bg-[#09090b] border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20 shadow-lg">
            <img 
