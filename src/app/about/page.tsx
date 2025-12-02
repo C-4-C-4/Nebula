@@ -2,9 +2,8 @@ import MatrixBackground from "@/components/MatrixBackground";
 import aboutData from "@/data/about.json";
 import Comments from "@/components/Comments"; 
 import { fetchJsonData } from "@/lib/github";
+import Navbar from "@/components/Navbar";
 import TechModule from "@/components/TechModule";
-// 1. 删除 Navbar 的引入
-// import Navbar from "@/components/Navbar"; 
 
 export default async function AboutPage() {
   const file = await fetchJsonData("config.json");
@@ -14,9 +13,7 @@ export default async function AboutPage() {
     <main className="min-h-screen relative text-white selection:bg-endfield-accent selection:text-black">
       <MatrixBackground />
       <div className="fixed inset-0 bg-gradient-to-t from-endfield-base via-transparent to-transparent pointer-events-none z-0" />
-      
-      {/* 2. 删除这里的 <Navbar /> 组件 */}
-      {/* <Navbar /> */}
+      <Navbar />
 
       <div className="max-w-6xl mx-auto px-6 pt-32 pb-20 relative z-10">
         
@@ -45,19 +42,28 @@ export default async function AboutPage() {
            {/* 左侧栏 */}
            <div className="lg:col-span-4 flex flex-col gap-6 border-b lg:border-b-0 lg:border-r border-white/10 pb-8 lg:pb-0 lg:pr-8">
               
-              {/* 头像区域 */}
-              <div className="relative w-full aspect-square border-2 border-white/10 p-2 group">
-                 <div className="absolute inset-0 bg-endfield-accent/5 group-hover:bg-endfield-accent/10 transition-colors" />
-                 <div className="absolute w-full h-1 bg-endfield-accent/50 top-0 left-0 animate-[scan_3s_linear_infinite] opacity-50" />
+              {/* === 头像区域 (修复版) === */}
+              <div className="relative w-full aspect-square border-2 border-white/10 p-2 overflow-hidden">
+                 
+                 {/* 1. 扫描线动画 (保留) */}
+                 {/* z-20 确保它在图片上面，pointer-events-none 确保鼠标能穿透它 */}
+                 <div className="absolute w-full h-[2px] bg-endfield-accent top-0 left-0 animate-[scan_3s_linear_infinite] shadow-[0_0_15px_#FCEE21] z-20 pointer-events-none opacity-80" />
+                 
+                 {/* 2. 删除了之前的 "absolute inset-0 bg-..." 遮罩层，这就是导致泛白的原因 */}
+
+                 {/* 3. 图片本体 */}
                  <img 
                    src={aboutData.avatar} 
                    alt="Avatar" 
-                   className="w-full h-full object-cover transition-all duration-500"
+                   className="w-full h-full object-cover"
                  />
-                 <div className="absolute bottom-4 right-4 text-[10px] font-mono text-endfield-accent bg-black/80 px-2 py-1">
+                 
+                 {/* 4. 右下角标签 */}
+                 <div className="absolute bottom-4 right-4 text-[10px] font-mono text-endfield-accent bg-black/80 px-2 py-1 z-20">
                    IMG_SOURCE_RAW
                  </div>
               </div>
+              {/* ======================= */}
 
               {/* 基础信息区域 */}
               <div className="space-y-6">
@@ -81,7 +87,7 @@ export default async function AboutPage() {
                    </div>
                  </div>
 
-                 {/* Logo 展示块 */}
+                 {/* LOGO 区域 */}
                  {aboutData.logo && (
                    <div className="mt-2">
                      <label className="text-[10px] text-endfield-dim font-mono block mb-2">ORGANIZATION_LOGO</label>
