@@ -4,8 +4,6 @@ import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
-export const runtime = 'edge';
-
 // Server Action
 async function saveAction(formData: FormData) {
   "use server";
@@ -33,9 +31,14 @@ ${body}`;
   redirect("/admin");
 }
 
+// 务必声明为 Edge 运行时以兼容 Cloudflare
+export const runtime = 'edge';
+
 export default async function EditorPage({ params }: { params: { slug: string } }) {
+  // Next.js 15+ 中 params 是 Promise，需要 await
   const { slug } = await params;
-  const isNew = slug === "new";
+  const decodedSlug = decodeURIComponent(slug); // 确保在页面显示时也是解码的
+  const isNew = decodedSlug === "new";
   
   let initialData = {
     slug: "",
@@ -45,8 +48,15 @@ export default async function EditorPage({ params }: { params: { slug: string } 
   };
 
   if (!isNew) {
-    const data = await fetchGithubFileContent(slug);
-    if (data) initialData = data;
+    // 尝试获取数据
+    const data = await fetchGithubFileContent(decodedSlug);
+    // 如果获取成功，覆盖初始数据
+    if (data) {
+      initialData = data;
+    } else {
+      // 如果获取失败（比如文件不存在），可能需要处理，这里暂时保持空表单
+      console.error("Failed to load post data for:", decodedSlug);
+    }
   }
 
   return (
@@ -64,6 +74,7 @@ export default async function EditorPage({ params }: { params: { slug: string } 
              {isNew ? "CREATE_MODE" : "EDIT_MODE"}
            </span>
            <span className="text-xs text-gray-600 hidden md:block">
+             {/* 显示解码后的文件名 */}
              TARGET: {isNew ? "NEW_FILE" : `${initialData.slug}.md`}
            </span>
         </div>
@@ -97,6 +108,7 @@ export default async function EditorPage({ params }: { params: { slug: string } 
                   <label className="block text-[10px] text-endfield-accent mb-1 group-focus-within:text-white transition-colors">FILE_SLUG (ID)</label>
                   <input 
                     name="slug" 
+                    // 确保这里的 defaultValue 是从 GitHub 获取到的真实数据
                     defaultValue={initialData.slug} 
                     required
                     className="w-full bg-black border-b border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-white transition-colors placeholder-gray-700"
