@@ -1,3 +1,9 @@
+---
+title: "Nebula.ICP介绍"
+date: "2025-12-05"
+category: "REPORT"
+image: "https://img.scdn.io/i/693204c56ba60_1764885701.webp"
+---
 # 🌌 NEBULA.ICP | Decentralized Filing System
 
 ![Style](https://img.shields.io/badge/Style-Neo--Brutalism-orange?style=for-the-badge&labelColor=000)
@@ -113,11 +119,6 @@
 
 ### ⭐ Stargazers over time
 [![Stargazers over time](https://starchart.cc/C-4-C-4/NEBULA-ICP.svg?variant=adaptive)](https://starchart.cc/C-4-C-4/NEBULA-ICP)
-
-### 🕵️ 访客统计 (Visitor Count)
-<div align="center">
-  <img src="https://count.getloli.com/get/@NEBULA-ICP?theme=rule34" alt="moe-counter" />
-</div>
 
 ---
 
