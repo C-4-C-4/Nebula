@@ -4,7 +4,7 @@ import matter from 'gray-matter';
 
 const postsDirectory = path.join(process.cwd(), 'posts');
 
-// === 1. 定义默认封面图 (Endfield 风格) ===
+// 定义默认封面图
 const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED"; 
 
 export function getSortedPostsData() {
@@ -19,13 +19,11 @@ export function getSortedPostsData() {
     const fileContents = fs.readFileSync(fullPath, 'utf8');
     const matterResult = matter(fileContents);
     
-    // === 2. 获取原始 image ===
     const rawImage = (matterResult.data as any).image;
 
     return {
       id,
       ...(matterResult.data as { date: string; title: string; category: string }),
-      // === 3. 判断：如果有值且不为空字符串，就用原图，否则用默认图 ===
       image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
     };
   });
@@ -37,18 +35,27 @@ export function getSortedPostsData() {
 }
 
 export function getPostData(id: string) {
-  const fullPath = path.join(postsDirectory, `${id}.md`);
+  // === 关键修复 ===
+  // Vercel 构建时传入的 id 可能是 URL 编码过的 (例如 %E4%BB%8B%E7%BB%8D)
+  // 必须解码才能找到磁盘上的中文文件名
+  const decodedId = decodeURIComponent(id);
+  
+  const fullPath = path.join(postsDirectory, `${decodedId}.md`);
+  
+  // 增加容错：如果文件找不到，抛出明确错误或返回空（防止构建直接崩溃）
+  if (!fs.existsSync(fullPath)) {
+    throw new Error(`File not found: ${fullPath} (Original ID: ${id})`);
+  }
+
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const matterResult = matter(fileContents);
   
-  // === 2. 获取原始 image ===
   const rawImage = (matterResult.data as any).image;
 
   return {
-    id,
+    id: decodedId, // 返回解码后的 ID
     content: matterResult.content,
     ...(matterResult.data as { date: string; title: string; category: string }),
-    // === 3. 同样的判断逻辑 ===
     image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
   };
 }
