@@ -141,5 +141,16 @@
     "email": "",
     "description": "写给你的长信",
     "stack": []
+  },
+  {
+    "id": "LINK_011",
+    "siteName": "柠檬星",
+    "blogger": "Meteorite",
+    "url": "https://blog.lemonstar.me",
+    "logo": "https://blog.lemonstar.me/img/site-icon-lemon.png",
+    "snapshot": "",
+    "email": "",
+    "description": "天空就是一杯橘子味的柠檬汽水",
+    "stack": []
   }
 ]
