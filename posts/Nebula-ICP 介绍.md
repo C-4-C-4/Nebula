@@ -1,5 +1,5 @@
 ---
-title: "Nebula.ICP介绍"
+title: "Nebula.ICP 介绍"
 date: "2025-12-05"
 category: "REPORT"
 image: "https://img.scdn.io/i/693204c56ba60_1764885701.webp"
