@@ -163,5 +163,16 @@
     "email": "",
     "description": "Adpro的Blog，可能有有用的东西？",
     "stack": []
+  },
+  {
+    "id": "LINK_013",
+    "siteName": "Chenmyの小破站",
+    "blogger": "Chenmy",
+    "url": "https://www.chenmyawa.top/",
+    "logo": "https://www.chenmyawa.top/avatar.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "这是一只鸽子，只会咕咕叫",
+    "stack": []
   }
 ]
