@@ -7,6 +7,7 @@ import "./globals.css";
 import Footer from "@/components/Footer"; 
 import Navbar from "@/components/Navbar"; 
 import { fetchJsonData } from "@/lib/github"; 
+import NextTopLoader from 'nextjs-toploader';
 
 // 1. 动态生成 Metadata (标题 + Favicon)
 export async function generateMetadata(): Promise<Metadata> {

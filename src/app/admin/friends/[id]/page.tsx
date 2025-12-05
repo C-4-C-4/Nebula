@@ -1,6 +1,7 @@
 import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import Link from "next/link"; // <--- 补全了这行引用
 import Navbar from "@/components/Navbar";
 
 async function saveFriendAction(formData: FormData) {
@@ -17,7 +18,7 @@ async function saveFriendAction(formData: FormData) {
     blogger: formData.get("blogger"),
     url: formData.get("url"),
     logo: formData.get("logo"),
-    snapshot: formData.get("snapshot"), // === 新增字段 ===
+    snapshot: formData.get("snapshot"),
     email: formData.get("email"),
     description: formData.get("description"),
     stack: (formData.get("stack") as string).split(",").map(s => s.trim()).filter(s => s)
@@ -38,6 +39,9 @@ async function saveFriendAction(formData: FormData) {
   redirect("/admin/friends");
 }
 
+// 兼容 Cloudflare Pages
+export const runtime = 'edge';
+
 export default async function FriendEditorPage({ params }: { params: { id: string } }) {
   const { id } = await params;
   const isNew = id === "new";
@@ -51,7 +55,7 @@ export default async function FriendEditorPage({ params }: { params: { id: strin
     blogger: "",
     url: "",
     logo: "",
-    snapshot: "", // === 新增字段 ===
+    snapshot: "",
     email: "",
     description: "",
     stack: [] as string[]
@@ -111,7 +115,6 @@ export default async function FriendEditorPage({ params }: { params: { id: strin
              </div>
           </div>
 
-          {/* === 新增：快照设置 === */}
           <div className="group">
              <label className="block text-[10px] text-gray-500 mb-1">SNAPSHOT_URL (Optional, Leave empty for auto-generation)</label>
              <input name="snapshot" defaultValue={friendData.snapshot} className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300" placeholder="e.g. https://example.com/cover.jpg"/>
@@ -126,9 +129,14 @@ export default async function FriendEditorPage({ params }: { params: { id: strin
              <button type="submit" className="flex-1 bg-endfield-accent text-black font-bold py-3 hover:bg-white transition-colors uppercase">
                SAVE_DATA
              </button>
-             <a href="/admin/friends" className="px-6 py-3 border border-white/20 text-gray-400 hover:text-white text-center">
+             
+             {/* Link 组件现在可以正常使用了 */}
+             <Link 
+               href="/admin/friends" 
+               className="px-6 py-3 border border-white/20 text-gray-400 hover:text-white text-center flex items-center justify-center transition-colors uppercase"
+             >
                CANCEL
-             </a>
+             </Link>
           </div>
         </form>
       </div>

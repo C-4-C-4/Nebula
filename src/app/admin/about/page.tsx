@@ -1,8 +1,10 @@
 import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation"; // 确保引入了 redirect
+import { redirect } from "next/navigation";
+import Link from "next/link";
 import Navbar from "@/components/Navbar";
 
+// 兼容 Cloudflare Pages
 export const runtime = 'edge';
 
 async function saveAboutAction(formData: FormData) {
@@ -23,14 +25,13 @@ async function saveAboutAction(formData: FormData) {
   await saveJsonData("about.json", newData, sha);
   revalidatePath("/about");
   revalidatePath("/admin/about");
-  
-  // === 修复点：添加跳转 ===
   redirect("/admin");
 }
 
 export default async function AdminAboutPage() {
   const file = await fetchJsonData("about.json");
-  if (!file) return <div>Error loading data</div>;
+  // 简单的错误处理
+  if (!file) return <div className="text-white p-10">Error loading data. Please check your internet or GitHub token.</div>;
 
   const { data, sha } = file;
 
@@ -38,6 +39,14 @@ export default async function AdminAboutPage() {
     <main className="min-h-screen bg-[#09090b] text-white font-mono selection:bg-endfield-accent selection:text-black">
       <Navbar logoText="ENDFIELD.SYS" /> 
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-20">
+        
+        {/* === 返回按钮 === */}
+        <div className="mb-6">
+          <Link href="/admin" className="text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1 w-fit group">
+             <span>&lt;</span> <span className="group-hover:underline">RETURN_TO_DASHBOARD</span>
+          </Link>
+        </div>
+
         <h1 className="text-2xl text-endfield-accent mb-8 border-b border-white/10 pb-2">
           EDIT: ABOUT_PROFILE
         </h1>
@@ -88,9 +97,14 @@ export default async function AdminAboutPage() {
              <p className="text-[10px] text-gray-600 mt-1">Example: React, Next.js, TypeScript</p>
           </div>
 
-          <button type="submit" className="w-full bg-endfield-accent text-black font-bold py-3 hover:bg-white transition-colors uppercase tracking-widest mt-8">
-            SAVE_PROFILE_DATA
-          </button>
+          <div className="flex gap-4 mt-8">
+             <button type="submit" className="flex-1 bg-endfield-accent text-black font-bold py-3 hover:bg-white transition-colors uppercase">
+               SAVE_PROFILE_DATA
+             </button>
+             <Link href="/admin" className="px-6 py-3 border border-white/20 text-gray-400 hover:text-white text-center flex items-center justify-center transition-colors uppercase">
+               CANCEL
+             </Link>
+          </div>
         </form>
       </div>
     </main>

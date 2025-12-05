@@ -38,7 +38,6 @@ const getIconSlug = (name: string) => {
   return lowerName.replace(/\./g, "dot").replace(/[^a-z0-9]/g, "");
 };
 
-// 技术标签组件
 const TechTag = ({ tech }: { tech: string }) => {
   const [isError, setIsError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -66,7 +65,7 @@ const TechTag = ({ tech }: { tech: string }) => {
 export default function FriendCard({ data, index }: { data: Friend; index: number }) {
   const FALLBACK_IMAGE = "https://placehold.co/600x340/09090b/333/png?text=NO_SIGNAL";
 
-  // === 1. Logo 逻辑 ===
+  // === Logo 逻辑 ===
   const placeholderLogo = `https://placehold.co/128x128/000/FFF?text=${data.siteName.charAt(0)}`;
   const [logoSrc, setLogoSrc] = useState<string>(
     (data.logo && data.logo.trim() !== "") ? data.logo : placeholderLogo
@@ -83,16 +82,19 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       setIsUsingCache(true);
       return;
     }
-    try {
-      const domain = new URL(data.url).hostname;
-      const providers = [
-        `https://api.iowen.cn/favicon/${domain}.png`,
-        `https://api.uomg.com/api/get.favicon?url=${data.url}`,
-        `https://favicon.im/${domain}`,
-        placeholderLogo
-      ];
-      if (logoAttempt < providers.length) setLogoSrc(providers[logoAttempt]);
-    } catch {}
+    
+    let domain = "";
+    try { domain = new URL(data.url).hostname; } catch { return; }
+
+    const providers = [
+      `https://favicon.im/${domain}?larger=true`,
+      `https://api.iowen.cn/favicon/${domain}.png`,
+      placeholderLogo
+    ];
+
+    if (logoAttempt < providers.length) {
+       setLogoSrc(providers[logoAttempt]);
+    }
   }, [data.url, data.logo, logoAttempt, placeholderLogo]);
 
   const handleLogoError = () => {
@@ -102,7 +104,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       setLogoAttempt(0);
       return;
     }
-    if (logoAttempt < 3) setLogoAttempt(prev => prev + 1);
+    if (logoAttempt < 2) setLogoAttempt(prev => prev + 1);
   };
 
   const handleLogoLoad = () => {
@@ -110,22 +112,11 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
     localStorage.setItem(`favicon_url_${data.url}`, logoSrc);
   };
 
-  // === 2. 快照逻辑 ===
+  // === 快照逻辑 ===
   const autoSnapshotUrl = useMemo(() => {
     if (data.snapshot && data.snapshot.trim() !== "") return data.snapshot;
-    
-    const today = new Date().toISOString().split('T')[0];
-    const params = new URLSearchParams({
-      url: data.url,
-      screenshot: "true",
-      meta: "false",
-      embed: "screenshot.url",
-      viewport: "1280x800",
-      nrg: "1",
-      ttl: "86400000",
-      v: today 
-    });
-    return `https://api.microlink.io/?${params.toString()}`;
+    const encodedUrl = encodeURIComponent(data.url);
+    return `https://s0.wp.com/mshots/v1/${encodedUrl}?w=800&h=500`;
   }, [data.url, data.snapshot]);
 
   const [imgSrc, setImgSrc] = useState(
@@ -135,7 +126,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
 
   useEffect(() => {
     if (data.snapshot && data.snapshot.trim() !== "") {
-      setIsLoading(false);
+      setIsLoading(false); 
       return;
     }
     const isCached = localStorage.getItem(`snap_cached_${autoSnapshotUrl}`);
@@ -154,19 +145,26 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="group relative bg-endfield-surface border border-white/10 hover:border-endfield-accent transition-colors duration-300 flex flex-col h-full"
+      // 添加 overflow-hidden 确保全卡片扫描线不会溢出圆角（如果有的话）
+      className="group relative bg-endfield-surface border border-white/10 hover:border-endfield-accent transition-colors duration-300 flex flex-col h-full overflow-hidden"
     >
+      {/* 
+         === 修改点 1：全局扫描线 ===
+         移到了最外层容器，并提升 z-index。
+         pointer-events-none 确保它不会阻挡点击。
+      */}
+      <div className="data-scan-overlay pointer-events-none z-20" />
+
       {/* 快照区域 */}
-      <div className="relative h-40 w-full overflow-hidden border-b border-white/10 bg-black">
-        {/* 扫描线动画 */}
-        <div className="data-scan-overlay" />
+      <div className="relative h-40 w-full border-b border-white/10 bg-black">
         
         {/* 
-           === 关键修复 ===
-           移除了所有的遮罩层 div (bg-black/20 等)。
-           现在这里只剩下图片本身和上面的扫描线。
-           这样鼠标移上去就不会有变亮的效果了。
+           === 修改点 2：去除曝光 ===
+           添加一个永久的、极淡的黑色遮罩。
+           它不会在 hover 时消失，所以不会有亮度突变。
+           z-10 确保它盖在图片上。
         */}
+        <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
         
         <img 
           src={imgSrc} 
@@ -176,8 +174,8 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
             setImgSrc(FALLBACK_IMAGE);
             setIsLoading(false);
           }}
-          // 图片保持原样，仅保留缩放动画
-          className={`w-full h-full object-cover transform group-hover:scale-105 transition-all duration-500 ${isLoading ? 'blur-sm scale-110' : 'blur-0 scale-100'}`}
+          // 只保留 scale 动画，移除了所有 filter/blur/opacity 变化
+          className={`w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 ease-out ${isLoading ? 'blur-sm scale-110' : ''}`}
         />
 
         {isLoading && (
@@ -194,7 +192,7 @@ export default function FriendCard({ data, index }: { data: Friend; index: numbe
       </div>
 
       {/* 信息区域 */}
-      <div className="p-5 flex-1 flex flex-col relative">
+      <div className="p-5 flex-1 flex flex-col relative z-10">
         <div className="absolute -top-6 right-4 w-12 h-12 bg-[#09090b] border border-white/20 p-1 group-hover:border-endfield-accent transition-colors z-20 shadow-lg">
            <img 
              src={logoSrc} 

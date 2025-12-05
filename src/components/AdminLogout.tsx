@@ -7,36 +7,38 @@ export default function AdminLogout({ onLogout }: { onLogout: () => Promise<void
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    
-    // 1. 先调用服务端删除 Cookie
-    await onLogout();
-
-    // 2. 播放关机动画，然后强制刷新跳转
-    setTimeout(() => {
-      // 关键修改：使用 window.location.href 而不是 router.push
-      // 这会触发浏览器级刷新，彻底清除 Next.js 的客户端路由缓存
+    setTimeout(async () => {
+      // 强制刷新跳转以清除缓存
+      await onLogout();
       window.location.href = "/login";
     }, 2000);
   };
 
   return (
-    // ... 下面的 JSX 保持不变 ...
-    // ... 为了篇幅，请保留你现有的 JSX (包括那个 System Halted 的动画) ...
     <>
       <div className="mt-auto pt-6 border-t border-white/10">
+         {/* === 优化后的登出按钮 === */}
          <button 
            onClick={handleLogout}
            disabled={isLoggingOut}
-           className="w-full border border-red-500/30 text-red-500 py-3 text-xs font-bold hover:bg-red-500 hover:text-black transition-colors uppercase tracking-widest flex justify-center items-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+           className="relative w-full overflow-hidden border border-red-500/30 text-red-500 py-3 text-xs font-bold uppercase tracking-widest group disabled:opacity-50 disabled:cursor-not-allowed"
          >
-           <span className="w-2 h-2 bg-red-500 rounded-full group-hover:bg-black transition-colors" />
-           [ DISCONNECT_SESSION ]
+           {/* 红色背景滑块 */}
+           <div className="absolute inset-0 bg-red-600 translate-x-[-101%] group-hover:translate-x-0 transition-transform duration-300 ease-out z-0" />
+           
+           {/* 内容 */}
+           <div className="relative z-10 flex justify-center items-center gap-2 group-hover:text-black transition-colors duration-300">
+             <span className="w-2 h-2 bg-red-500 rounded-full group-hover:bg-black transition-colors" />
+             [ DISCONNECT_SESSION ]
+           </div>
          </button>
+         
          <div className="text-center text-[9px] text-gray-600 mt-2">
            SECURE LOGOUT REQUIRED AFTER OPERATIONS
          </div>
       </div>
 
+      {/* 关机动画保持不变 */}
       <AnimatePresence>
         {isLoggingOut && (
           <motion.div 
@@ -47,7 +49,11 @@ export default function AdminLogout({ onLogout }: { onLogout: () => Promise<void
             <motion.div 
               className="absolute inset-0 bg-white"
               initial={{ scaleY: 0, opacity: 0 }}
-              animate={{ scaleY: [0, 0.02, 0.02, 0], scaleX: [1, 1, 0, 0], opacity: [0, 1, 1, 0] }}
+              animate={{ 
+                scaleY: [0, 0.02, 0.02, 0], 
+                scaleX: [1, 1, 0, 0],       
+                opacity: [0, 1, 1, 0] 
+              }}
               transition={{ duration: 0.6, times: [0, 0.1, 0.8, 1] }}
             />
             <motion.div
@@ -70,8 +76,12 @@ export default function AdminLogout({ onLogout }: { onLogout: () => Promise<void
               transition={{ delay: 0.9 }} 
               className="z-30 text-center font-mono"
             >
-              <div className="text-red-500 text-sm tracking-[0.3em] mb-2">SYSTEM_HALTED</div>
-              <div className="text-[10px] text-gray-600 animate-pulse">WAITING_FOR_REBOOT_SEQUENCE_</div>
+              <div className="text-red-500 text-sm tracking-[0.3em] mb-2">
+                SYSTEM_HALTED
+              </div>
+              <div className="text-[10px] text-gray-600 animate-pulse">
+                WAITING_FOR_REBOOT_SEQUENCE_
+              </div>
             </motion.div>
           </motion.div>
         )}

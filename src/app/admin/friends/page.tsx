@@ -3,21 +3,20 @@ import { fetchJsonData, saveJsonData } from "@/lib/github";
 import { revalidatePath } from "next/cache";
 import Navbar from "@/components/Navbar";
 
+// 兼容 Cloudflare Pages
 export const runtime = 'edge';
 
 async function deleteFriendAction(formData: FormData) {
   "use server";
   const idToDelete = formData.get("id") as string;
-  const sha = formData.get("sha") as string;
+  const sha = formData.get("sha") as string; // 注意：列表页的 SHA 可能滞后，但对于 JSON 整体覆盖来说通常可行，最好是在操作前 fetch 最新
   
-  // 1. 获取当前数据 (重新获取一次以确保并发安全)
+  // 为了安全，操作前重新 fetch 一次获取最新 SHA
   const file = await fetchJsonData("friends.json");
   if (!file) return;
 
-  // 2. 过滤掉要删除的项
   const newFriends = (file.data as any[]).filter(f => f.id !== idToDelete);
 
-  // 3. 保存回去 (注意：这里要用最新的 sha，即 file.sha)
   await saveJsonData("friends.json", newFriends, file.sha);
   revalidatePath("/friends");
   revalidatePath("/admin/friends");
@@ -32,7 +31,14 @@ export default async function AdminFriendsPage() {
       <Navbar />
       <div className="max-w-5xl mx-auto px-6 pt-32 pb-20">
         
-        <div className="flex justify-between items-end mb-8 border-b border-white/20 pb-4">
+        {/* === 返回按钮 === */}
+        <div className="mb-6">
+          <Link href="/admin" className="text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1 w-fit group">
+             <span>&lt;</span> <span className="group-hover:underline">RETURN_TO_DASHBOARD</span>
+          </Link>
+        </div>
+
+        <div className="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
           <h1 className="text-2xl text-endfield-accent font-bold">MANAGE: FRIENDS_DB</h1>
           <Link href="/admin/friends/new" className="bg-endfield-accent text-black px-4 py-2 text-sm font-bold hover:bg-white transition-colors">
             + ADD_LINK
@@ -58,15 +64,19 @@ export default async function AdminFriendsPage() {
                  
                  <form action={deleteFriendAction}>
                    <input type="hidden" name="id" value={friend.id} />
-                   {/* 这里的 SHA 实际上需要每次操作都获取最新的，为了简单我们这里假设列表加载时的 sha 是准的。
-                       在 deleteFriendAction 里我们重新 fetch 了一次，所以这里的 sha 参数其实主要是为了传给 Server Action 触发器，
-                       实际上逻辑里用了 fetch 后的新 sha。但为了 Server Action 签名匹配，我们还是传一下 */}
+                   {/* 这里的 SHA 仅作为占位，实际 Action 会重新获取 */}
                    <input type="hidden" name="sha" value={file?.sha} />
                    <button className="text-xs text-gray-500 hover:text-red-500">[DEL]</button>
                  </form>
                </div>
              </div>
            ))}
+           
+           {friends.length === 0 && (
+             <div className="text-center py-12 text-gray-600 border border-white/10 bg-white/5 border-dashed">
+               NO DATA AVAILABLE // CLICK ADD_LINK
+             </div>
+           )}
         </div>
       </div>
     </main>
