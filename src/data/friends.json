@@ -152,5 +152,16 @@
     "email": "",
     "description": "天空就是一杯橘子味的柠檬汽水",
     "stack": []
+  },
+  {
+    "id": "LINK_012",
+    "siteName": "AdproのBlog",
+    "blogger": "Aone",
+    "url": "https://blog.adproqwq.top/",
+    "logo": "https://blog.adproqwq.top/avatar.png",
+    "snapshot": "",
+    "email": "",
+    "description": "Adpro的Blog，可能有有用的东西？",
+    "stack": []
   }
 ]
