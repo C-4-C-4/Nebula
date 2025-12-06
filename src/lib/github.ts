@@ -1,20 +1,23 @@
 import { Octokit } from "octokit";
 import matter from "gray-matter";
-import { cache } from "react"; // 1. 引入 cache
+import { cache } from "react";
 
-// ... 初始化代码保持不变 ...
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+// 初始化 Octokit
+const octokit = new Octokit({
+  auth: process.env.GITHUB_TOKEN,
+});
+
 const OWNER = process.env.GITHUB_OWNER!;
 const REPO = process.env.GITHUB_REPO!;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const POSTS_PATH = "posts"; 
+
 const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED";
 
 // ==========================================
 // 1. 文章 (Markdown) 相关方法
 // ==========================================
 
-// 2. 使用 cache 包裹请求函数
 export const fetchGithubFiles = cache(async () => {
   try {
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
@@ -22,8 +25,7 @@ export const fetchGithubFiles = cache(async () => {
       repo: REPO,
       path: POSTS_PATH,
       ref: BRANCH,
-      // 添加 fetch 选项，控制底层缓存
-      headers: { 'If-None-Match': '' } 
+      headers: { 'If-None-Match': '' } // 禁用 GitHub API 缓存
     });
     if (!Array.isArray(data)) return [];
     return data
@@ -41,7 +43,9 @@ export const fetchGithubFiles = cache(async () => {
 
 export const fetchGithubFileContent = cache(async (slug: string) => {
   try {
+    // 关键修复：解码 URL 参数，防止中文文件名 404
     const decodedSlug = decodeURIComponent(slug);
+
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
       owner: OWNER,
       repo: REPO,
@@ -53,6 +57,7 @@ export const fetchGithubFileContent = cache(async (slug: string) => {
       const content = Buffer.from(data.content, "base64").toString("utf-8");
       const { data: frontMatter, content: markdownBody } = matter(content);
       
+      // 默认封面图兜底
       if (!frontMatter.image || frontMatter.image.trim() === "") {
         frontMatter.image = DEFAULT_COVER;
       }
@@ -71,11 +76,11 @@ export const fetchGithubFileContent = cache(async (slug: string) => {
   }
 });
 
-// ... saveGithubFile 和 deleteGithubFile 保持不变 (它们是写操作，不需要缓存) ...
-// 复制之前的 saveGithubFile 和 deleteGithubFile 代码 ...
 export async function saveGithubFile(slug: string, content: string, sha?: string) {
+  // 保存时也要确保解码
   const decodedSlug = decodeURIComponent(slug);
   const contentBase64 = Buffer.from(content).toString("base64");
+  
   await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
     owner: OWNER,
     repo: REPO,
@@ -99,12 +104,10 @@ export async function deleteGithubFile(slug: string, sha: string) {
   });
 }
 
-
 // ==========================================
 // 2. JSON 数据 (Data) 相关方法
 // ==========================================
 
-// 3. 同样包裹 cache
 export const fetchJsonData = cache(async (filename: string) => {
   try {
     const path = `src/data/${filename}`;
@@ -124,11 +127,11 @@ export const fetchJsonData = cache(async (filename: string) => {
     }
     return null;
   } catch (error) {
+    // console.error(`Error fetching json ${filename}:`, error);
     return null;
   }
 });
 
-// ... saveJsonData 保持不变 ...
 export async function saveJsonData(filename: string, jsonData: any, sha: string) {
   const path = `src/data/${filename}`;
   const content = JSON.stringify(jsonData, null, 2);
@@ -160,26 +163,23 @@ export const fetchGithubRepos = cache(async () => {
 
     if (!Array.isArray(data)) return [];
 
-    // === 修改点：不再过滤 ===
-    // 1. 去掉 !repo.fork，这样 Fork 的项目也能显示
-    // 2. 去掉 repo.name !== REPO，这样当前网站仓库 (Nebula) 也能显示
-    
-    // 如果你想显示所有项目：
+    // 不过滤，显示所有项目
     const filtered = data; 
-
-    // 或者，如果你只想显示原创 + 当前仓库 (仍然隐藏 Fork，但显示 Nebula)：
-    // const filtered = data.filter(repo => (!repo.fork || repo.name === REPO));
 
     return filtered.map((repo) => ({
       id: repo.id,
       name: repo.name,
       description: repo.description || "No description provided.",
       url: repo.html_url,
-      stars: repo.stargazers_count,
-      forks: repo.forks_count,
+      
+      // === 关键修复：类型兜底 ===
+      // GitHub API 返回的可能是 undefined，必须给一个默认值 0
+      stars: repo.stargazers_count ?? 0,
+      forks: repo.forks_count ?? 0,
+      
       language: repo.language || "Text",
-      updatedAt: repo.updated_at,
-      homepage: repo.homepage,
+      updatedAt: repo.updated_at ?? null,
+      homepage: repo.homepage ?? null,
       topics: repo.topics || []
     }));
   } catch (error) {
