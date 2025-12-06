@@ -5,6 +5,8 @@ import { fetchJsonData } from "@/lib/github";
 import Navbar from "@/components/Navbar";
 import TechModule from "@/components/TechModule";
 
+export const revalidate = 3600;
+
 export default async function AboutPage() {
   const file = await fetchJsonData("config.json");
   const giscusConfig = file?.data?.giscusConfig || {};

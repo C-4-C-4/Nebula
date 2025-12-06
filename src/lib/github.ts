@@ -1,29 +1,29 @@
 import { Octokit } from "octokit";
 import matter from "gray-matter";
+import { cache } from "react"; // 1. 引入 cache
 
-// 初始化 Octokit
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
-
+// ... 初始化代码保持不变 ...
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 const OWNER = process.env.GITHUB_OWNER!;
 const REPO = process.env.GITHUB_REPO!;
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const POSTS_PATH = "posts"; 
-
 const DEFAULT_COVER = "https://placehold.co/800x400/09090b/FCEE21/png?text=NO_SIGNAL_DETECTED";
 
 // ==========================================
 // 1. 文章 (Markdown) 相关方法
 // ==========================================
 
-export async function fetchGithubFiles() {
+// 2. 使用 cache 包裹请求函数
+export const fetchGithubFiles = cache(async () => {
   try {
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
       owner: OWNER,
       repo: REPO,
       path: POSTS_PATH,
       ref: BRANCH,
+      // 添加 fetch 选项，控制底层缓存
+      headers: { 'If-None-Match': '' } 
     });
     if (!Array.isArray(data)) return [];
     return data
@@ -37,18 +37,15 @@ export async function fetchGithubFiles() {
     console.error("Error fetching files:", error);
     return [];
   }
-}
+});
 
-export async function fetchGithubFileContent(slug: string) {
+export const fetchGithubFileContent = cache(async (slug: string) => {
   try {
-    // === 关键修复：解码 URL 参数 ===
-    // 比如 "中文标题" 在 URL 里是 "%E4%B8..."，必须转回中文才能在 GitHub 找到文件
     const decodedSlug = decodeURIComponent(slug);
-
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
       owner: OWNER,
       repo: REPO,
-      path: `${POSTS_PATH}/${decodedSlug}.md`, // 使用解码后的文件名
+      path: `${POSTS_PATH}/${decodedSlug}.md`,
       ref: BRANCH,
     });
 
@@ -56,13 +53,12 @@ export async function fetchGithubFileContent(slug: string) {
       const content = Buffer.from(data.content, "base64").toString("utf-8");
       const { data: frontMatter, content: markdownBody } = matter(content);
       
-      // 默认封面图兜底
       if (!frontMatter.image || frontMatter.image.trim() === "") {
         frontMatter.image = DEFAULT_COVER;
       }
 
       return { 
-        slug: decodedSlug, // 返回解码后的 slug
+        slug: decodedSlug, 
         sha: data.sha, 
         frontMatter, 
         content: markdownBody 
@@ -73,13 +69,13 @@ export async function fetchGithubFileContent(slug: string) {
     console.error("Error fetching file content:", error);
     return null;
   }
-}
+});
 
+// ... saveGithubFile 和 deleteGithubFile 保持不变 (它们是写操作，不需要缓存) ...
+// 复制之前的 saveGithubFile 和 deleteGithubFile 代码 ...
 export async function saveGithubFile(slug: string, content: string, sha?: string) {
-  // 保存时也要确保解码，防止文件名变成乱码
   const decodedSlug = decodeURIComponent(slug);
   const contentBase64 = Buffer.from(content).toString("base64");
-  
   await octokit.request("PUT /repos/{owner}/{repo}/contents/{path}", {
     owner: OWNER,
     repo: REPO,
@@ -103,11 +99,13 @@ export async function deleteGithubFile(slug: string, sha: string) {
   });
 }
 
+
 // ==========================================
 // 2. JSON 数据 (Data) 相关方法
 // ==========================================
 
-export async function fetchJsonData(filename: string) {
+// 3. 同样包裹 cache
+export const fetchJsonData = cache(async (filename: string) => {
   try {
     const path = `src/data/${filename}`;
     const { data } = await octokit.request("GET /repos/{owner}/{repo}/contents/{path}", {
@@ -126,12 +124,11 @@ export async function fetchJsonData(filename: string) {
     }
     return null;
   } catch (error) {
-    // 首次部署可能没有文件，不报错，返回 null 让前端用默认值
-    // console.error(`Error fetching json ${filename}:`, error);
     return null;
   }
-}
+});
 
+// ... saveJsonData 保持不变 ...
 export async function saveJsonData(filename: string, jsonData: any, sha: string) {
   const path = `src/data/${filename}`;
   const content = JSON.stringify(jsonData, null, 2);

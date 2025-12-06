@@ -6,6 +6,8 @@ import PostList from "@/components/PostList";
 import { fetchJsonData } from "@/lib/github"; 
 import ScrollGuide from "@/components/ScrollGuide"; 
 
+export const revalidate = 3600;
+
 export default async function Home() {
   const posts = getSortedPostsData();
   const file = await fetchJsonData("config.json");

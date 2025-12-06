@@ -20,29 +20,33 @@ export function getSortedPostsData() {
     const matterResult = matter(fileContents);
     
     const rawImage = (matterResult.data as any).image;
+    // 确保有日期，没有则兜底到1970，防止报错
+    const date = (matterResult.data as any).date || "1970-01-01";
 
     return {
       id,
-      ...(matterResult.data as { date: string; title: string; category: string }),
+      ...(matterResult.data as { title: string; category: string }),
+      date: date,
       image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
     };
   });
 
+  // === 修改点：使用 Date 对象的时间戳进行比较 ===
   return allPostsData.sort((a, b) => {
-    if (a.date < b.date) return 1;
-    else return -1;
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    
+    // 降序排列 (B - A)：时间戳大的（新的）在前面
+    return dateB - dateA;
   });
 }
 
 export function getPostData(id: string) {
-  // === 关键修复 ===
-  // Vercel 构建时传入的 id 可能是 URL 编码过的 (例如 %E4%BB%8B%E7%BB%8D)
-  // 必须解码才能找到磁盘上的中文文件名
+  // 解码 URL 参数
   const decodedId = decodeURIComponent(id);
   
   const fullPath = path.join(postsDirectory, `${decodedId}.md`);
   
-  // 增加容错：如果文件找不到，抛出明确错误或返回空（防止构建直接崩溃）
   if (!fs.existsSync(fullPath)) {
     throw new Error(`File not found: ${fullPath} (Original ID: ${id})`);
   }
@@ -51,11 +55,13 @@ export function getPostData(id: string) {
   const matterResult = matter(fileContents);
   
   const rawImage = (matterResult.data as any).image;
+  const date = (matterResult.data as any).date || "1970-01-01";
 
   return {
-    id: decodedId, // 返回解码后的 ID
+    id: decodedId, 
     content: matterResult.content,
-    ...(matterResult.data as { date: string; title: string; category: string }),
+    ...(matterResult.data as { title: string; category: string }),
+    date: date,
     image: (rawImage && rawImage.trim() !== "") ? rawImage : DEFAULT_COVER,
   };
 }

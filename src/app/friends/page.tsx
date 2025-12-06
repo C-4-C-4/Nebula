@@ -7,6 +7,8 @@ import Comments from "@/components/Comments";
 import ScrollGuide from "@/components/ScrollGuide"; 
 import FriendsList from "@/components/FriendsList"; // 1. 引入新组件
 
+export const revalidate = 3600;
+
 export default async function FriendsPage() {
   const file = await fetchJsonData("config.json");
   const giscusConfig = file?.data?.giscusConfig || {};
