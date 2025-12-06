@@ -19,6 +19,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'avatars.githubusercontent.com',
       },
+      { 
+        protocol: 'http', 
+        hostname: 'i0.hdslb.com'
+       },
+      { 
+        protocol: 'https', 
+        hostname: 'i0.hdslb.com' 
+      },
       // 如果你有其他图床域名，请继续添加
     ],
     // 2. 启用 AVIF 格式，压缩率更高

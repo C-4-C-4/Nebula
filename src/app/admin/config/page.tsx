@@ -16,6 +16,7 @@ async function saveConfigAction(formData: FormData) {
     siteTitle: formData.get("siteTitle"),
     logoText: formData.get("logoText"),
     favicon: formData.get("favicon"),
+    bilibiliUid: formData.get("bilibiliUid"), // === 新增：B站 UID ===
     
     // 首页大图文字
     heroTitleLine1: formData.get("heroTitleLine1"),
@@ -36,7 +37,10 @@ async function saveConfigAction(formData: FormData) {
   };
 
   await saveJsonData("config.json", newConfig, sha);
+  // 刷新全站布局
   revalidatePath("/", "layout"); 
+  
+  // 保存成功后跳转回后台首页
   redirect("/admin");
 }
 
@@ -48,6 +52,7 @@ export default async function AdminConfigPage() {
     siteTitle: "Endfield Blog", 
     logoText: "ENDFIELD.SYS",
     favicon: "",
+    bilibiliUid: "", // 默认空
     heroTitleLine1: "SYSTEM",
     heroTitleLine2: "OVERRIDE",
     copyright: "", icp: "", police: "" 
@@ -61,7 +66,7 @@ export default async function AdminConfigPage() {
       <Navbar logoText={data.logoText} /> 
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-20">
         
-        {/* === 返回按钮 === */}
+        {/* 返回按钮 */}
         <div className="mb-6">
           <Link href="/admin" className="text-xs text-gray-500 hover:text-white transition-colors flex items-center gap-1 w-fit group">
              <span>&lt;</span> <span className="group-hover:underline">RETURN_TO_DASHBOARD</span>
@@ -79,14 +84,26 @@ export default async function AdminConfigPage() {
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-gray-500 border-l-2 border-endfield-accent pl-2">GLOBAL_SETTINGS</h3>
             
-            <div className="group">
-               <label className="block text-[10px] text-endfield-accent mb-1">BROWSER_TAB_ICON (Favicon URL)</label>
-               <input 
-                 name="favicon" 
-                 defaultValue={data.favicon} 
-                 className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300"
-                 placeholder="e.g. https://example.com/icon.png"
-               />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="group">
+                 <label className="block text-[10px] text-endfield-accent mb-1">BROWSER_TAB_ICON (Favicon URL)</label>
+                 <input 
+                   name="favicon" 
+                   defaultValue={data.favicon} 
+                   className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300"
+                   placeholder="e.g. https://example.com/icon.png"
+                 />
+              </div>
+              <div className="group">
+                 {/* === 新增：B站 UID 输入框 === */}
+                 <label className="block text-[10px] text-endfield-accent mb-1">BILIBILI_UID</label>
+                 <input 
+                   name="bilibiliUid" 
+                   defaultValue={data.bilibiliUid} 
+                   className="w-full bg-white/5 border border-white/20 p-2 text-sm focus:border-endfield-accent outline-none text-gray-300"
+                   placeholder="e.g. 3493265644987624"
+                 />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,12 +176,12 @@ export default async function AdminConfigPage() {
           </div>
 
           <div className="flex gap-4 mt-8">
-             <button type="submit" className="flex-1 bg-endfield-accent text-black font-bold py-3 hover:bg-white transition-colors uppercase">
-               UPDATE_SYSTEM_CONFIG
-             </button>
-             <Link href="/admin" className="px-6 py-3 border border-white/20 text-gray-400 hover:text-white text-center flex items-center justify-center transition-colors uppercase">
+            <button type="submit" className="flex-1 bg-endfield-accent text-black font-bold py-3 hover:bg-white transition-colors uppercase tracking-widest">
+              UPDATE_SYSTEM_CONFIG
+            </button>
+            <Link href="/admin" className="px-6 py-3 border border-white/20 text-gray-400 hover:text-white text-center flex items-center justify-center transition-colors uppercase">
                CANCEL
-             </Link>
+            </Link>
           </div>
         </form>
       </div>

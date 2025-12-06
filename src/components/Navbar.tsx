@@ -7,6 +7,7 @@ const navItems = [
   { name: "HOME", path: "/", label: "首页" },
   { name: "PROJECTS", path: "/projects", label: "项目" },
   { name: "NEBULA", path: "/nebula", label: "星图" },
+  { name: "BANGUMI", path: "/bangumi", label: "追番" },
   { name: "FRIENDS", path: "/friends", label: "友联" },
   { name: "ABOUT", path: "/about", label: "关于" },
 ];
