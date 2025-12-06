@@ -251,5 +251,27 @@
     "email": "",
     "description": "Let's start learning",
     "stack": []
+  },
+  {
+    "id": "LINK_021",
+    "siteName": "mccsjs",
+    "blogger": "mccsjs",
+    "url": "https://seln.cn/",
+    "logo": "https://seln.cn/img/ico.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "点一盏灯，等一个迷路的夜🍁🍁🍁",
+    "stack": []
+  },
+  {
+    "id": "LINK_022",
+    "siteName": "Sky's Blog",
+    "blogger": "奇怪的青年",
+    "url": "https://www.wanglingyue.com",
+    "logo": "http://cdn.wanglingyue.com/me-1.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "山河浪漫，人间温暖",
+    "stack": []
   }
 ]
