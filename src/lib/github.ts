@@ -144,3 +144,46 @@ export async function saveJsonData(filename: string, jsonData: any, sha: string)
     branch: BRANCH,
   });
 }
+
+// ==========================================
+// 3. 获取用户仓库列表 (Projects)
+// ==========================================
+
+export const fetchGithubRepos = cache(async () => {
+  try {
+    const { data } = await octokit.request("GET /users/{username}/repos", {
+      username: OWNER,
+      sort: "updated",
+      direction: "desc",
+      per_page: 100,
+    });
+
+    if (!Array.isArray(data)) return [];
+
+    // === 修改点：不再过滤 ===
+    // 1. 去掉 !repo.fork，这样 Fork 的项目也能显示
+    // 2. 去掉 repo.name !== REPO，这样当前网站仓库 (Nebula) 也能显示
+    
+    // 如果你想显示所有项目：
+    const filtered = data; 
+
+    // 或者，如果你只想显示原创 + 当前仓库 (仍然隐藏 Fork，但显示 Nebula)：
+    // const filtered = data.filter(repo => (!repo.fork || repo.name === REPO));
+
+    return filtered.map((repo) => ({
+      id: repo.id,
+      name: repo.name,
+      description: repo.description || "No description provided.",
+      url: repo.html_url,
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      language: repo.language || "Text",
+      updatedAt: repo.updated_at,
+      homepage: repo.homepage,
+      topics: repo.topics || []
+    }));
+  } catch (error) {
+    console.error("Error fetching repos:", error);
+    return [];
+  }
+});
