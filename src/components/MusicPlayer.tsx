@@ -27,12 +27,10 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
   
   const currentSong = songs[currentIndex];
 
-  // 1. 切换歌曲时，加载歌词
   useEffect(() => {
     if (!currentSong) return;
     setIsLoading(true);
     
-    // 获取歌词
     fetch(`/api/music/lyric?id=${currentSong.id}`)
       .then(res => res.json())
       .then(data => {
@@ -42,7 +40,6 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
         setIsLoading(false);
       });
 
-    // 重置状态
     setProgress(0);
     setCurrentLyricIndex(0);
     if (isPlaying && audioRef.current) {
@@ -50,16 +47,13 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
     }
   }, [currentSong]);
 
-  // 2. 播放进度监听
   const handleTimeUpdate = () => {
     if (!audioRef.current) return;
     const currentTime = audioRef.current.currentTime;
     const duration = audioRef.current.duration;
     
-    // 更新进度条
     if (duration) setProgress((currentTime / duration) * 100);
 
-    // 同步歌词
     const index = lyrics.findIndex((line, i) => {
       const nextLine = lyrics[i + 1];
       return currentTime >= line.time && (!nextLine || currentTime < nextLine.time);
@@ -67,12 +61,11 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
     
     if (index !== -1 && index !== currentLyricIndex) {
       setCurrentLyricIndex(index);
-      // 歌词滚动
       if (lyricContainerRef.current) {
         const activeItem = lyricContainerRef.current.children[index] as HTMLElement;
         if (activeItem) {
           lyricContainerRef.current.scrollTo({
-            top: activeItem.offsetTop - 120, // 保持居中
+            top: activeItem.offsetTop - 120,
             behavior: "smooth"
           });
         }
@@ -80,7 +73,6 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
     }
   };
 
-  // LRC 解析函数
   const parseLrc = (lrc: string) => {
     const lines = lrc.split("\n");
     const result: LyricLine[] = [];
@@ -100,7 +92,6 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
     return result;
   };
 
-  // 控制播放
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) audioRef.current.pause();
@@ -108,31 +99,26 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
     setIsPlaying(!isPlaying);
   };
 
-  // 切换歌曲
   const changeSong = (direction: 'next' | 'prev') => {
     let newIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
     if (newIndex >= songs.length) newIndex = 0;
     if (newIndex < 0) newIndex = songs.length - 1;
     setCurrentIndex(newIndex);
-    setIsPlaying(true); // 切换后自动播放
+    setIsPlaying(true);
   };
 
   if (!currentSong) return <div>NO DATA</div>;
 
   return (
-    <div className="w-full max-w-5xl mx-auto bg-black/80 border border-white/10 backdrop-blur-xl p-6 md:p-10 relative overflow-hidden">
+    <div className="w-full max-w-5xl mx-auto bg-black/80 border border-white/10 backdrop-blur-xl p-6 md:p-10 relative overflow-hidden group/player">
       
-      {/* 装饰性UI */}
       <div className="absolute top-0 right-0 p-2 text-[10px] font-mono text-endfield-accent border-b border-l border-white/10">
         AUDIO_TERMINAL_V2.0
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pb-8"> {/* 增加底部 padding 给进度条留空间 */}
         
-        {/* === 左侧：封面与控制 === */}
         <div className="md:col-span-5 flex flex-col items-center">
-          
-          {/* 旋转封面 (黑胶唱片效果) */}
           <motion.div 
             className="relative w-64 h-64 rounded-full border-4 border-white/5 p-2 mb-8 bg-black shadow-[0_0_50px_rgba(252,238,33,0.1)]"
             animate={{ rotate: isPlaying ? 360 : 0 }}
@@ -142,19 +128,16 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
             <div className="absolute inset-0 rounded-full overflow-hidden">
                <img src={currentSong.cover} alt="Cover" className="w-full h-full object-cover opacity-80" />
             </div>
-            {/* 中心孔 */}
             <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-black rounded-full -translate-x-1/2 -translate-y-1/2 border border-white/20 flex items-center justify-center">
               <div className="w-2 h-2 bg-endfield-accent rounded-full animate-pulse" />
             </div>
           </motion.div>
 
-          {/* 歌曲信息 */}
           <div className="text-center mb-6 w-full">
             <h2 className="text-2xl font-bold text-white truncate">{currentSong.title}</h2>
             <p className="text-sm font-mono text-endfield-dim mt-1">{currentSong.artist}</p>
           </div>
 
-          {/* 控制按钮 */}
           <div className="flex items-center gap-6">
              <button onClick={() => changeSong('prev')} className="text-gray-400 hover:text-white transition-colors">
                PREV
@@ -175,10 +158,7 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
           </div>
         </div>
 
-        {/* === 右侧：歌词滚动 === */}
         <div className="md:col-span-7 h-[400px] border-l border-white/10 pl-6 relative">
-           
-           {/* 顶部遮罩 (渐变消失) */}
            <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-black/90 to-transparent z-10 pointer-events-none" />
            
            <div 
@@ -211,31 +191,37 @@ export default function MusicPlayer({ songs }: { songs: Song[] }) {
              )}
            </div>
 
-           {/* 底部遮罩 */}
            <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-black/90 to-transparent z-10 pointer-events-none" />
         </div>
 
       </div>
 
-      {/* 底部进度条 */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-800 cursor-pointer group" onClick={(e) => {
-         // 简单的点击跳转进度
-         const rect = e.currentTarget.getBoundingClientRect();
-         const x = e.clientX - rect.left;
-         const percent = x / rect.width;
-         if(audioRef.current && audioRef.current.duration) {
-            audioRef.current.currentTime = percent * audioRef.current.duration;
-         }
-      }}>
+      {/* === 修改后的进度条 === */}
+      {/* 1. 容器：高度增加到 h-4 (16px)，并在底部留一点距离，方便点击 */}
+      <div 
+        className="absolute bottom-0 left-0 w-full h-4 cursor-pointer group" 
+        onClick={(e) => {
+           const rect = e.currentTarget.getBoundingClientRect();
+           const x = e.clientX - rect.left;
+           const percent = x / rect.width;
+           if(audioRef.current && audioRef.current.duration) {
+              audioRef.current.currentTime = percent * audioRef.current.duration;
+           }
+        }}
+      >
+        {/* 2. 背景轨道：垂直居中 */}
+        <div className="absolute top-1/2 left-0 w-full h-[2px] bg-gray-700 -translate-y-1/2 group-hover:h-[4px] transition-all" />
+        
+        {/* 3. 进度条主体 */}
         <div 
-          className="h-full bg-endfield-accent relative" 
+          className="absolute top-1/2 left-0 h-[2px] bg-endfield-accent -translate-y-1/2 group-hover:h-[4px] transition-all" 
           style={{ width: `${progress}%` }}
         >
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white opacity-0 group-hover:opacity-100 rounded-full shadow-[0_0_10px_white] transition-opacity" />
+          {/* 4. 滑块：始终垂直居中，因为容器高度够，不会被切掉 */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-[0_0_10px_white] opacity-0 group-hover:opacity-100 transition-opacity transform scale-0 group-hover:scale-100" />
         </div>
       </div>
 
-      {/* 隐藏的 Audio 元素 */}
       <audio 
         ref={audioRef}
         src={`https://music.163.com/song/media/outer/url?id=${currentSong.id}.mp3`}

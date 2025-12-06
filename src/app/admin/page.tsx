@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
       {/* 顶部状态栏 */}
       <div className="fixed top-16 left-0 w-full h-12 border-b border-white/10 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-between px-6">
         <div className="flex gap-4 text-[10px] text-endfield-dim">
-           <span>SYS.VER.4.5</span>
+           <span>SYS.VER.4.8</span>
            <span>CONN: <span className="text-green-500">SECURE</span></span>
            <span>USER: <span className="text-endfield-accent">ADMIN</span></span>
         </div>
@@ -66,12 +66,14 @@ export default async function AdminDashboard() {
               QUICK_ACCESS
             </h3>
             
-            {/* === 菜单按钮组 (含音乐管理) === */}
+            {/* === 菜单按钮组 (包含所有管理模块) === */}
             {[
               { href: "/admin/about", label: "Manage: ABOUT", sub: "Edit Profile & Stack" },
               { href: "/admin/friends", label: "Manage: FRIENDS", sub: "Link Connections Database" },
               { href: "/admin/config", label: "Manage: CONFIG", sub: "Copyright & ICP Settings" },
-              { href: "/admin/music", label: "Manage: MUSIC", sub: "Playlist & Lyrics Database" } // === 新增 ===
+              { href: "/admin/music", label: "Manage: MUSIC", sub: "Playlist & Lyrics Database" },
+              { href: "/admin/timeline", label: "Manage: TIMELINE", sub: "System Logs & Milestones" },
+              { href: "/admin/moments", label: "Manage: MOMENTS", sub: "RSS Feed Aggregator" } // === 新增 ===
             ].map((item) => (
               <Link 
                 key={item.href} 

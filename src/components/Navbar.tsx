@@ -10,6 +10,8 @@ const moduleItems = [
   { name: "NEBULA", path: "/nebula", label: "星图" },
   { name: "BANGUMI", path: "/bangumi", label: "追番" },
   { name: "MUSIC", path: "/music", label: "音乐" },
+  { name: "TIMELINE", path: "/timeline", label: "日志" },
+  { name: "MOMENTS", path: "/moments", label: "动态" },
 ];
 
 // 2. 定义主导航项目 (MODULES 作为一个特殊项处理)
