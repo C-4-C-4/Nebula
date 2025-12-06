@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { fetchGithubFiles, deleteGithubFile } from "@/lib/github";
-import { deleteSession } from "@/lib/auth"; 
+import { deleteSession, verifySession } from "@/lib/auth"; 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation"; 
 import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import AdminLogout from "@/components/AdminLogout";
 
-// Server Actions 保持不变
+// Server Action: 删除文章
 async function deleteAction(formData: FormData) {
   "use server";
   const slug = formData.get("slug") as string;
@@ -19,16 +19,23 @@ async function deleteAction(formData: FormData) {
   }
 }
 
+// Server Action: 登出 (传递给客户端组件使用)
 async function logoutAction() {
   "use server";
   await deleteSession(); 
-  // 这里的跳转由客户端组件处理
 }
 
 // 兼容 Cloudflare Pages
 export const runtime = 'edge';
 
 export default async function AdminDashboard() {
+  // 1. 页面级权限验证 (门神)
+  const isAuth = await verifySession();
+  if (!isAuth) {
+    redirect("/login");
+  }
+
+  // 2. 获取文章列表
   const files = await fetchGithubFiles();
 
   return (
@@ -36,9 +43,10 @@ export default async function AdminDashboard() {
       <MatrixBackground />
       <Navbar />
 
+      {/* 顶部状态栏 */}
       <div className="fixed top-16 left-0 w-full h-12 border-b border-white/10 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-between px-6">
         <div className="flex gap-4 text-[10px] text-endfield-dim">
-           <span>SYS.VER.4.3</span>
+           <span>SYS.VER.4.5</span>
            <span>CONN: <span className="text-green-500">SECURE</span></span>
            <span>USER: <span className="text-endfield-accent">ADMIN</span></span>
         </div>
@@ -58,11 +66,12 @@ export default async function AdminDashboard() {
               QUICK_ACCESS
             </h3>
             
-            {/* === 1. 优化后的菜单按钮 (滑块填充效果) === */}
+            {/* === 菜单按钮组 (含音乐管理) === */}
             {[
               { href: "/admin/about", label: "Manage: ABOUT", sub: "Edit Profile & Stack" },
               { href: "/admin/friends", label: "Manage: FRIENDS", sub: "Link Connections Database" },
-              { href: "/admin/config", label: "Manage: CONFIG", sub: "Copyright & ICP Settings" }
+              { href: "/admin/config", label: "Manage: CONFIG", sub: "Copyright & ICP Settings" },
+              { href: "/admin/music", label: "Manage: MUSIC", sub: "Playlist & Lyrics Database" } // === 新增 ===
             ].map((item) => (
               <Link 
                 key={item.href} 
@@ -95,9 +104,8 @@ export default async function AdminDashboard() {
             </div>
           </div>
 
-          {/* === 2. 优化后的新建按钮 (更强烈的交互) === */}
+          {/* 新建按钮 */}
           <Link href="/admin/editor/new" className="block group relative overflow-hidden">
-             {/* 底部黄色块 */}
              <div className="absolute inset-0 bg-endfield-accent translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300 ease-in-out z-0" />
              
              <div className="relative z-10 bg-black border border-endfield-accent p-4 text-center cursor-pointer group-hover:text-black transition-colors duration-300 flex items-center justify-center gap-2">
@@ -106,6 +114,7 @@ export default async function AdminDashboard() {
              </div>
           </Link>
 
+          {/* 登出按钮组件 */}
           <AdminLogout onLogout={logoutAction} />
         </div>
 
@@ -146,7 +155,6 @@ export default async function AdminDashboard() {
                 </div>
                 
                 <div className="col-span-2 flex justify-end gap-2 items-center">
-                  {/* === 3. 列表操作按钮美化 === */}
                   <Link 
                     href={`/admin/editor/${file.slug}`}
                     className="text-[10px] border border-white/20 px-2 py-1 hover:bg-white hover:text-black transition-colors uppercase"
@@ -164,6 +172,12 @@ export default async function AdminDashboard() {
                 </div>
               </div>
             ))}
+            
+            {files.length === 0 && (
+              <div className="h-32 flex items-center justify-center border border-dashed border-white/10 text-gray-600">
+                NO_DATA_FOUND // INITIATE_CREATE_SEQUENCE
+              </div>
+            )}
           </div>
         </div>
 

@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import LoadingOverlay from "@/components/LoadingOverlay"; // 引入刚才写的组件
+import LoadingOverlay from "@/components/LoadingOverlay";
+import Link from "next/link";
 
 interface Post {
   id: string;
@@ -15,24 +16,19 @@ export default function PostList({ posts }: { posts: Post[] }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  // 处理点击跳转
   const handlePostClick = (id: string) => {
     setIsLoading(true);
-    // 延迟 1500ms，等待动画播放完再跳转
     setTimeout(() => {
       router.push(`/blog/${id}`);
-      // 这里的 setIsLoading(false) 不需要写，因为页面会销毁重建，或者在新页面重置
     }, 1500);
   };
 
   return (
     <>
-      {/* 1. 全局加载遮罩 */}
       <LoadingOverlay isLoading={isLoading} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
-          // 2. 将 Link 改为 div，添加 onClick 事件
           <div 
             key={post.id} 
             onClick={() => handlePostClick(post.id)}
@@ -71,10 +67,14 @@ export default function PostList({ posts }: { posts: Post[] }) {
                     READ_ENTRY -&gt;
                   </span>
                   
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                     <div className="w-1 h-1 bg-endfield-accent" />
-                     <div className="w-1 h-1 bg-endfield-accent" />
+                  {/* === 修复部分 === */}
+                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                     {/* 增大尺寸到 w-2 h-2 (8px)，强制无圆角 */}
+                     <div className="w-2 h-2 bg-endfield-accent rounded-none" />
+                     <div className="w-2 h-2 bg-endfield-accent/50 rounded-none" /> {/* 第二个方块稍微透明一点，增加层次感 */}
                   </div>
+                  {/* ================ */}
+
                 </div>
               </div>
 

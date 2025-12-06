@@ -3,6 +3,11 @@ import { motion } from "framer-motion";
 import { BangumiItem } from "@/lib/bilibili";
 
 export default function BangumiCard({ data, index }: { data: BangumiItem; index: number }) {
+  // === 进度条逻辑 ===
+  // 1. 如果完结 (is_finish === 1)，进度条 100%
+  // 2. 如果连载 (is_finish === 0)，进度条 50% 并闪烁，表示"正在更新/未完成"
+  const progressWidth = data.is_finish ? "100%" : "50%";
+
   return (
     <motion.a
       href={data.link}
@@ -17,17 +22,17 @@ export default function BangumiCard({ data, index }: { data: BangumiItem; index:
       <div className="relative aspect-[3/4] w-full overflow-hidden bg-black">
         <div className="data-scan-overlay z-20 pointer-events-none" />
         
-        {/* 关键：使用 img 标签并禁用 referrer */}
+        {/* 图片 (绕过 B站防盗链) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img 
           src={data.cover} 
           alt={data.title}
-          referrerPolicy="no-referrer" // === 核心：解决403问题 ===
+          referrerPolicy="no-referrer"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-80 group-hover:opacity-100"
         />
 
         {/* 状态角标 */}
-        <div className={`absolute top-2 left-2 px-2 py-1 text-[10px] font-bold font-mono border ${
+        <div className={`absolute top-2 left-2 px-2 py-1 text-[10px] font-bold font-mono border z-20 ${
           data.is_finish 
             ? 'bg-black/80 text-gray-400 border-gray-600' 
             : 'bg-endfield-accent text-black border-endfield-accent'
@@ -35,9 +40,20 @@ export default function BangumiCard({ data, index }: { data: BangumiItem; index:
           {data.is_finish ? "COMPLETED" : "ON_AIR"}
         </div>
 
-        {/* 进度条装饰 */}
-        <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10">
-           <div className="h-full bg-endfield-accent w-2/3 group-hover:w-full transition-all duration-500" />
+        {/* === 进度条装饰 (修改点) === */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-white/10 z-20">
+           <motion.div 
+             className="h-full bg-endfield-accent"
+             initial={{ width: 0 }}
+             animate={{ 
+               width: progressWidth,
+               opacity: data.is_finish ? 1 : [0.6, 1, 0.6] // 连载中的番剧，进度条会有呼吸灯效果
+             }}
+             transition={{ 
+               width: { duration: 1, delay: 0.5 },
+               opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" } // 呼吸动画
+             }}
+           />
         </div>
       </div>
 
@@ -48,6 +64,7 @@ export default function BangumiCard({ data, index }: { data: BangumiItem; index:
             {data.title}
           </h3>
           <p className="text-[10px] text-endfield-dim font-mono mb-3">
+            {/* 显示最新集数 */}
             EP: {data.new_ep.index_show}
           </p>
         </div>
