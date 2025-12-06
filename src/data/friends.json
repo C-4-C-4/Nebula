@@ -174,5 +174,16 @@
     "email": "",
     "description": "这是一只鸽子，只会咕咕叫",
     "stack": []
+  },
+  {
+    "id": "LINK_014",
+    "siteName": "阿叶Ayeez的小站",
+    "blogger": "阿叶Ayeez",
+    "url": "https://blog.Ayeez.cn",
+    "logo": "https://blog.ayeez.cn/imgs/photo.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "记录学习历程，记录美好生活",
+    "stack": []
   }
 ]
