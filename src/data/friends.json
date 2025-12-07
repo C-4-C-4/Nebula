@@ -427,5 +427,38 @@
     "email": "",
     "description": "白头并非雪可替,相遇已是上上签",
     "stack": []
+  },
+  {
+    "id": "LINK_037",
+    "siteName": "Elainafan's blog",
+    "blogger": "elainafan",
+    "url": "https://www.elainafan.one/",
+    "logo": "https://www.elainafan.one/img/avatar_hu1071812203031902840.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "只因 现在 深爱其中",
+    "stack": []
+  },
+  {
+    "id": "LINK_038",
+    "siteName": "逐暗者的麦田",
+    "blogger": "逐暗者",
+    "url": "https://www.iasuna.com",
+    "logo": "https://pic.shellingford.cn/i/me/logo.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "一位Java攻城狮的个人博客，主要分享编程、建站、动漫、趣闻和生活内容",
+    "stack": []
+  },
+  {
+    "id": "LINK_039",
+    "siteName": "酩酊街",
+    "blogger": "Marticlex",
+    "url": "https://cafe.omoi.fun/",
+    "logo": "https://cafe.omoi.fun/usr/uploads/2025/09/3262907601.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "Cheerful. Colorful.",
+    "stack": []
   }
 ]
