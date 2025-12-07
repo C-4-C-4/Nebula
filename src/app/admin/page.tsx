@@ -1,21 +1,19 @@
 import Link from "next/link";
 import { fetchGithubFiles, deleteGithubFile } from "@/lib/github";
 import { deleteSession, verifySession } from "@/lib/auth"; 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation"; 
 import Navbar from "@/components/Navbar";
 import MatrixBackground from "@/components/MatrixBackground";
 import AdminLogout from "@/components/AdminLogout";
+import AdminPostActions from "@/components/AdminPostActions";
 
-// Server Action: 删除文章
+// Server Action: 删除文章 (虽然主要使用暂存，但保留此 Action 作为底层支持)
 async function deleteAction(formData: FormData) {
   "use server";
   const slug = formData.get("slug") as string;
   const sha = formData.get("sha") as string;
   if (slug && sha) {
     await deleteGithubFile(slug, sha);
-    revalidatePath("/admin");
-    revalidatePath("/");
   }
 }
 
@@ -42,11 +40,13 @@ export default async function AdminDashboard() {
     <main className="min-h-screen bg-[#050505] text-white font-mono selection:bg-endfield-accent selection:text-black overflow-x-hidden">
       <MatrixBackground />
       <Navbar />
+      
+      {/* 注意：StagingManager 已移除，它应该在 layout.tsx 中全局加载 */}
 
       {/* 顶部状态栏 */}
       <div className="fixed top-16 left-0 w-full h-12 border-b border-white/10 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-between px-6">
         <div className="flex gap-4 text-[10px] text-endfield-dim">
-           <span>SYS.VER.4.8</span>
+           <span>SYS.VER.5.0</span>
            <span>CONN: <span className="text-green-500">SECURE</span></span>
            <span>USER: <span className="text-endfield-accent">ADMIN</span></span>
         </div>
@@ -66,14 +66,14 @@ export default async function AdminDashboard() {
               QUICK_ACCESS
             </h3>
             
-            {/* === 菜单按钮组 (包含所有管理模块) === */}
+            {/* === 菜单按钮组 === */}
             {[
               { href: "/admin/about", label: "Manage: ABOUT", sub: "Edit Profile & Stack" },
               { href: "/admin/friends", label: "Manage: FRIENDS", sub: "Link Connections Database" },
               { href: "/admin/config", label: "Manage: CONFIG", sub: "Copyright & ICP Settings" },
               { href: "/admin/music", label: "Manage: MUSIC", sub: "Playlist & Lyrics Database" },
               { href: "/admin/timeline", label: "Manage: TIMELINE", sub: "System Logs & Milestones" },
-              { href: "/admin/moments", label: "Manage: MOMENTS", sub: "RSS Feed Aggregator" } // === 新增 ===
+              { href: "/admin/moments", label: "Manage: MOMENTS", sub: "RSS Feed Aggregator" }
             ].map((item) => (
               <Link 
                 key={item.href} 
@@ -156,22 +156,9 @@ export default async function AdminDashboard() {
                   {file.sha.substring(0, 8)}...
                 </div>
                 
-                <div className="col-span-2 flex justify-end gap-2 items-center">
-                  <Link 
-                    href={`/admin/editor/${file.slug}`}
-                    className="text-[10px] border border-white/20 px-2 py-1 hover:bg-white hover:text-black transition-colors uppercase"
-                  >
-                    EDIT
-                  </Link>
-                  
-                  <form action={deleteAction}>
-                    <input type="hidden" name="slug" value={file.slug} />
-                    <input type="hidden" name="sha" value={file.sha} />
-                    <button className="text-[10px] border border-red-900/50 text-red-700 px-2 py-1 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors uppercase">
-                      DEL
-                    </button>
-                  </form>
-                </div>
+                {/* === 使用客户端操作组件 (支持暂存删除) === */}
+                <AdminPostActions slug={file.slug} sha={file.sha} />
+                
               </div>
             ))}
             

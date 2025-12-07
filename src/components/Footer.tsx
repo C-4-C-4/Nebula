@@ -1,6 +1,5 @@
 import { fetchJsonData } from "@/lib/github";
 
-// 默认配置，防止文件读取失败导致报错
 const DEFAULT_CONFIG = {
   copyright: "© 2024 ENDFIELD.SYS",
   icp: "",
@@ -8,9 +7,6 @@ const DEFAULT_CONFIG = {
 };
 
 export default async function Footer() {
-  // 从 GitHub (或本地模拟环境) 读取配置
-  // 注意：在本地开发时，fetchJsonData 会读取 GitHub 上的数据，
-  // 如果你想读本地文件，可以写个本地读取逻辑，但为了统一这里复用 github.ts
   const file = await fetchJsonData("config.json");
   const config = file ? file.data : DEFAULT_CONFIG;
 
@@ -28,14 +24,18 @@ export default async function Footer() {
           {/* 右侧：备案信息 */}
           <div className="flex flex-col md:flex-row items-center gap-4">
              {config.icp && (
-               <a href="https://beian.miit.gov.cn/" target="_blank" className="hover:text-endfield-accent transition-colors">
+               /* === 修改点：更新 href 跳转地址 === */
+               <a 
+                 href="https://icp.996icu.eu.org/" 
+                 target="_blank" 
+                 className="hover:text-endfield-accent transition-colors"
+               >
                  {config.icp}
                </a>
              )}
              
              {config.police && (
                <div className="flex items-center gap-1 hover:text-endfield-accent transition-colors cursor-pointer">
-                 {/* 公安备案图标 (简易版) */}
                  <span className="w-3 h-3 border border-current rounded-full flex items-center justify-center">👮</span>
                  <span>{config.police}</span>
                </div>
