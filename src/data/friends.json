@@ -383,5 +383,49 @@
     "email": "",
     "description": "这是一个技术分享和娱乐性的网站，它们记录着我的所思所想，在这里你能看见有关前端或是一些其它乱七八糟的技术思路分享，也能看见我的一些吐槽和有趣的分享，总之很欢迎您的光顾。",
     "stack": []
+  },
+  {
+    "id": "LINK_033",
+    "siteName": "POETIZE",
+    "blogger": "POETIZE",
+    "url": "https://poetize.cn",
+    "logo": "https://s1.ax1x.com/2022/11/10/z9E7X4.jpg",
+    "snapshot": "",
+    "email": "",
+    "description": "这是一个 Vue2 Vue3 与 SpringBoot 结合的产物～",
+    "stack": []
+  },
+  {
+    "id": "LINK_034",
+    "siteName": "Arthals' ink",
+    "blogger": "Arthals",
+    "url": "https://arthals.ink/",
+    "logo": "https://cdn.arthals.ink/Arthals.png",
+    "snapshot": "",
+    "email": "",
+    "description": "所见高山远木，阔云流风；所幸岁月盈余，了无拘束",
+    "stack": []
+  },
+  {
+    "id": "LINK_035",
+    "siteName": "JETT",
+    "blogger": "JETT",
+    "url": "https://jettlin.cn",
+    "logo": "https://api.jettlin.cn/api/files/1757467798643-user-img.png",
+    "snapshot": "",
+    "email": "",
+    "description": "暮然回首，那人却在，灯火阑珊处",
+    "stack": []
+  },
+  {
+    "id": "LINK_036",
+    "siteName": "云海花瑶",
+    "blogger": "云海花瑶",
+    "url": "https://www.moeyao.cn/",
+    "logo": "https://dn-qiniu-avatar.qbox.me/avatar/d00de9fbffe50946b950a3fd0cd1bfdb",
+    "snapshot": "",
+    "email": "",
+    "description": "白头并非雪可替,相遇已是上上签",
+    "stack": []
   }
 ]
