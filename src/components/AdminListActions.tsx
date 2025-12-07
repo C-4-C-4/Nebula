@@ -1,27 +1,48 @@
 "use client";
 
 interface Props {
-  filename: string;   // 例如 "friends.json"
+  filename: string;
   sha: string;
-  itemId: string;     // 要删除的条目 ID
-  itemName: string;   // 用于显示的名称
-  fullList: any[];    // 完整的当前列表数据
+  itemId: string;
+  itemName: string;
+  fullList: any[];
 }
 
 export default function AdminListActions({ filename, sha, itemId, itemName, fullList }: Props) {
   
   const handleStageDelete = () => {
-    // 1. 在本地计算出删除后的新列表
-    const newList = fullList.filter((item) => item.id !== itemId);
+    // === 关键修复开始：读取本地暂存区作为基准 ===
+    let listToFilter = fullList;
 
-    // 2. 触发暂存事件：保存这个新列表
+    try {
+      const savedBuffer = localStorage.getItem("nebula_staging_buffer");
+      if (savedBuffer) {
+        const buffer = JSON.parse(savedBuffer);
+        // 查找是否已经有针对当前文件的暂存操作
+        const pendingOp = buffer.find((op: any) => 
+          op.type === 'SAVE_DATA' && op.filename === filename
+        );
+        
+        if (pendingOp && Array.isArray(pendingOp.data)) {
+          // 基于暂存区的数据进行删除
+          listToFilter = pendingOp.data;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to read staging for delete", err);
+    }
+    // === 关键修复结束 ===
+
+    // 执行过滤
+    const newList = listToFilter.filter((item) => item.id !== itemId);
+
     const event = new CustomEvent("add-to-staging", {
       detail: {
         uiId: Math.random().toString(36).substr(2, 9),
         type: "SAVE_DATA",
         desc: `DELETE ITEM: ${itemName} from ${filename}`,
         filename: filename,
-        data: newList,
+        data: newList, // 这里发送的是基于最新状态过滤后的数据
         sha: sha
       }
     });
