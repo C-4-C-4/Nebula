@@ -350,5 +350,38 @@
     "email": "",
     "description": "If you wanna achieve you gotta believe",
     "stack": []
+  },
+  {
+    "id": "LINK_030",
+    "siteName": "Glimmer",
+    "blogger": "DuckXu",
+    "url": "https://i.duckxu.com",
+    "logo": "https://media.duckxu.com/blogfiles/public/iduckxucom.webp",
+    "snapshot": "",
+    "email": "duckxu@duckxu.com",
+    "description": "只有不活在他人的期待中，才可以成为更好的自己。",
+    "stack": []
+  },
+  {
+    "id": "LINK_031",
+    "siteName": "Hinai",
+    "blogger": "Hinai",
+    "url": "https://blog.woo.moe",
+    "logo": "https://data.woo.moe/img/ico/104491469_0_r.png",
+    "snapshot": "",
+    "email": "",
+    "description": "曇花一現",
+    "stack": []
+  },
+  {
+    "id": "LINK_032",
+    "siteName": "小元博客",
+    "blogger": "小元",
+    "url": "https://reblog.cn",
+    "logo": "https://reblog.cn/upload/img/web-user.jpeg",
+    "snapshot": "",
+    "email": "",
+    "description": "这是一个技术分享和娱乐性的网站，它们记录着我的所思所想，在这里你能看见有关前端或是一些其它乱七八糟的技术思路分享，也能看见我的一些吐槽和有趣的分享，总之很欢迎您的光顾。",
+    "stack": []
   }
 ]
