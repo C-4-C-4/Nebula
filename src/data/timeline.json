@@ -1,16 +1,1 @@
-[
-  {
-    "id": "LOG_001",
-    "date": "2025-12-07",
-    "title": "SYSTEM_INITIALIZED",
-    "content": "Nebula Blog System ver 4.5 successfully deployed to production environment.",
-    "type": "MILESTONE"
-  },
-  {
-    "id": "LOG_002",
-    "date": "2025-11-20",
-    "title": "MODULE_UPDATE",
-    "content": "Added 'FRIENDS' and 'PROJECTS' modules. Optimized core rendering engine.",
-    "type": "UPDATE"
-  }
-]
+[]

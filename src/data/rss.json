@@ -1,14 +1,1 @@
-[
-  {
-    "id": "RSS_001",
-    "name": "Next.js Blog",
-    "url": "https://nextjs.org/feed.xml",
-    "avatar": "https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_light_background.png"
-  },
-  {
-    "id": "RSS_002",
-    "name": "Vercel Blog",
-    "url": "https://vercel.com/atom",
-    "avatar": "https://assets.vercel.com/image/upload/front/favicon/vercel/180x180.png"
-  }
-]
+[]
