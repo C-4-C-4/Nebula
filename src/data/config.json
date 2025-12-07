@@ -1,17 +1,16 @@
 {
+  "favicon": "https://img.scdn.io/i/692dcd265ba3a_1764609318.webp",
   "siteTitle": "Nebula Blog ",
   "logoText": "Nebula.SYS",
-  "favicon": "https://img.scdn.io/i/692dcd265ba3a_1764609318.webp",
   "heroTitleLine1": "Nebula",
   "heroTitleLine2": "Blog",
-  "copyright": "2025 CCCC4444 All Rights Reserved.",
-  "icp": "星云ICP备20257808号",
-  "bilibiliUid": "3546871211494149", 
-  "police": "",
   "giscusConfig": {
     "repo": "C-4-C-4/Nebula",
     "repoId": "R_kgDOQfc2Tw",
     "category": "General",
     "categoryId": "DIC_kwDOQfc2T84CzP14"
-  }
+  },
+  "copyright": "2025 CCCC4444 All Rights Reserved.",
+  "icp": "",
+  "police": ""
 }
